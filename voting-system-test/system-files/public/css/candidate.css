@@ -102,7 +102,8 @@ header .container {
 
 .header-content .right-nav {
 	display: flex;
-	gap: 1.5rem;
+	align-items: center;
+	gap: 1rem;
 }
 
 .header-content .right-nav a {
@@ -142,6 +143,31 @@ header .container {
 .header-content .right-nav .lgn-txt {
 	color: var(--text) !important;
 	font-weight: 600;
+}
+
+.student-switch-btn {
+	position: fixed;
+	bottom: 1.25rem;
+	left: 1.25rem;
+	right: auto;
+	z-index: 1001;
+	background-color: var(--primary);
+	box-shadow: var(--shadow-m);
+	border: none;
+	border-radius: 3rem;
+	color: var(--text-light);
+	font-family: var(--ff);
+	font-size: 1rem;
+	font-weight: 600;
+	padding: 1rem 1.75rem;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.student-switch-btn:hover {
+	background-color: var(--secondary);
+	transform: translateY(-2px);
 }
 
 
@@ -199,10 +225,28 @@ header .container {
                 }
                 .body {
                     display: flex;
+                    flex-direction: column;
                     padding: 2rem;
                     background-color: var(--white-bg);
                     border-radius: 1.5rem;
-                    gap: 1rem;
+                    gap: 1.5rem;
+
+                    #edit-btn {
+                        align-self: flex-start;
+                        background-color: var(--primary);
+                        border: none;
+                        border-radius: .375rem;
+                        padding: .75rem 1.25rem;
+                        color: var(--text-light);
+                        font-family: var(--ff);
+                        font-size: 1rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                    }
+
+                    #edit-btn:hover {
+                        background-color: var(--secondary);
+                    }
 
                     .info {
                         display: flex;
@@ -286,6 +330,12 @@ header .container {
                         }
                     }
 
+                    .profile-pic-actions {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: .75rem;
+                    }
+
                     button {
                         background-color: var(--primary);
                         border: none;
@@ -293,6 +343,24 @@ header .container {
                         padding: .75rem 1.25rem;
                         color: var(--text-light);
                         font-weight: 600;
+                        cursor: pointer;
+                    }
+
+                    button.secondary {
+                        background-color: #F2F2F2;
+                        color: var(--sub-text);
+                        border: var(--sub-text-3) .125rem solid;
+                    }
+
+                    .profile-pic-hint {
+                        font-size: .8125rem;
+                        color: var(--sub-text-2);
+                        margin: 0;
+                    }
+
+                    .img-container img.default-profile-img {
+                        object-fit: cover;
+                        background-color: var(--sub-text-3);
                     }
                 }
             }

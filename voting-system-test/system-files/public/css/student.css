@@ -25,6 +25,7 @@
 	--text-blue: #06152D;
     --text-light: #FAFAFA;
 	--text-blue-light: #F6F9FE;
+	--default-profile-bg: #bdbdbd;
 	--shadow-s: 
 	inset 0 1px 2px #ffffff30,
 	0 1px 2px #00000030,
@@ -45,6 +46,15 @@ body {
 	flex-direction: column;
 	min-height: 100vh;
 	font-family: var(--ff);
+}
+
+.default-profile-img,
+.ch-card .prof img,
+.all-cand-cards .ac-card img,
+.c-card .left img,
+.vote-section .top-container .left img {
+	background-color: var(--default-profile-bg, #bdbdbd);
+	object-fit: cover;
 }
 
 .container {
@@ -100,7 +110,8 @@ header .container {
 
 .header-content .right-nav {
 	display: flex;
-	gap: 1.5rem;
+	align-items: center;
+	gap: 1rem;
 }
 
 .header-content .right-nav a {
@@ -190,7 +201,8 @@ header .container {
 				0 2px 4px #00000015;
 }
 
-.hero-stud-container button {
+.hero-stud-container button,
+.hero-stud-container .hero-vote-btn {
 	background-color: var(--accent);
 	box-shadow: var(--shadow-m);
 	border: none;
@@ -203,6 +215,16 @@ header .container {
 	transition: background-color 0.3s ease;
 }
 
+.hero-stud-container .hero-vote-btn {
+	display: inline-block;
+	text-decoration: none;
+	align-self: center;
+}
+
+.hero-stud-container .hero-vote-btn:hover {
+	background-color: var(--accent-hover);
+}
+
 .hero-container button:hover {
 	background-color: var(--accent-hover);
 	box-shadow: var(--shadow-m);
@@ -211,8 +233,10 @@ header .container {
 
 .hero-stud-container #export-btn{
 	position: fixed;
-	top: 87vh;
-	left: 87vw;
+	bottom: 1.25rem;
+	right: 1.25rem;
+	top: auto;
+	left: auto;
 	background-color: var(--accent);
 	border: none;
 	border-radius: .5rem;
@@ -222,6 +246,32 @@ header .container {
 	padding: 0.5rem 1.5rem;
 	cursor: pointer;
 	transition: color 0.3s ease;
+	z-index: 1000;
+}
+
+.student-switch-btn {
+	position: fixed;
+	bottom: 1.25rem;
+	left: 1.25rem;
+	right: auto;
+	z-index: 1001;
+	background-color: var(--primary);
+	box-shadow: var(--shadow-m);
+	border: none;
+	border-radius: 3rem;
+	color: var(--text-light);
+	font-family: var(--ff);
+	font-size: 1rem;
+	font-weight: 600;
+	padding: 1rem 1.75rem;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.student-switch-btn:hover {
+	background-color: var(--secondary);
+	transform: translateY(-2px);
 }
 
 .hero-stud-container #export-btn:hover {
@@ -759,6 +809,16 @@ header .container {
 					color: var(--text-blue);
 				}
 
+				.vote-skip-hint {
+					font-size: 0.9rem;
+					font-weight: 500;
+					color: var(--sub-text-2);
+					text-align: center;
+					max-width: 36rem;
+					line-height: 1.4;
+					margin: 0;
+				}
+
 				.line {
 					height: .25rem;
                 	width: 50%;
@@ -1076,6 +1136,11 @@ header .container {
                         flex-direction: column;
                         align-items: center;
                         width: 100%;
+
+                        li.review-abstain .details p {
+                            color: var(--sub-text-2);
+                            font-style: italic;
+                        }
 
                         li {
                             display: grid;

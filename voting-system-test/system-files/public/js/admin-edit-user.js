@@ -1,6 +1,6 @@
 /**
  * admin-edit-user.js
- * Load, edit, save, archive candidate/student profiles.
+ * Load, edit, save, archive student profiles and candidacy extensions.
  */
 (() => {
     'use strict';
@@ -28,24 +28,27 @@
         Object.entries(positionMap).map(([k, v]) => [v, k])
     );
 
+    function sectionPrefix(section) {
+        return section === candidateSection ? 'cand' : 'stud';
+    }
+
+    function field(section, name) {
+        return section?.querySelector(`#${sectionPrefix(section)}-${name}`);
+    }
+
     function getActiveSection() {
         return candidateSection?.style.display !== 'none' ? candidateSection : studentSection;
     }
 
-    function showSection(role) {
-        const isCandidate = role === 'candidate';
+    function showSection(hasCandidate) {
+        const isCandidate = !!hasCandidate;
         if (candidateSection) candidateSection.style.display = isCandidate ? 'flex' : 'none';
         if (studentSection)   studentSection.style.display   = isCandidate ? 'none' : 'flex';
 
-        const breadcrumb = isCandidate ? '> Edit User > Candidate' : '> Edit User > Student';
+        const breadcrumb = isCandidate ? '> Edit User > Candidacy Profile' : '> Edit User > Student';
         document.querySelectorAll('.edit-container .title p').forEach(p => {
             if (p.textContent.includes('Edit User')) p.textContent = breadcrumb;
         });
-    }
-
-    function setVal(section, selector, value) {
-        const el = section?.querySelector(selector);
-        if (el) el.value = value ?? '';
     }
 
     function setText(section, selector, value) {
@@ -59,36 +62,50 @@
         achievements = data.achievements || [];
         currentUser = user;
 
-        showSection(user.roles);
+        showSection(!!cand);
 
         [candidateSection, studentSection].forEach(section => {
             if (!section) return;
             setText(section, '.last-log p', formatDate(user.lastLogin));
-            setVal(section, '#last-name', user.lastname);
-            setVal(section, '#first-name', user.firstname);
-            setVal(section, '#m-i', user.mi);
-            setVal(section, '#suffix', user.suffix);
-            setVal(section, '#email', user.email);
-            setVal(section, '#stud-id', user.loginID);
-            setVal(section, '#program-dd', user.program || 'n-a');
-            setVal(section, '#departmant', user.department || 'n-a');
-            setVal(section, '#role', user.roles);
+            field(section, 'last-name').value = user.lastname ?? '';
+            field(section, 'first-name').value = user.firstname ?? '';
+            field(section, 'm-i').value = user.mi ?? '';
+            field(section, 'suffix').value = user.suffix ?? '';
+            field(section, 'email').value = user.email ?? '';
+            field(section, 'stud-id').value = user.loginID ?? '';
+            field(section, 'program-dd').value = user.program || 'n-a';
+            field(section, 'departmant').value = user.department || 'n-a';
 
-            if (cand?.profilePicture) {
-                const img = section.querySelector('.img-container img');
-                if (img) img.src = cand.profilePicture;
+            const candidacySelect = field(section, 'candidacy-profile');
+            if (candidacySelect) {
+                candidacySelect.value = cand ? 'yes' : 'no';
+            }
+
+            const img = section.querySelector('.img-container img');
+            if (img) {
+                const pic = section === candidateSection && cand?.profilePicture
+                    ? String(cand.profilePicture).trim()
+                    : '';
+                const defaultPath = '../../../public/img/478589759275824754.png';
+                if (pic) {
+                    img.src = '../../../public/' + pic.replace(/^\/+/, '');
+                    img.classList.remove('default-profile-img');
+                } else {
+                    img.src = defaultPath;
+                    img.classList.add('default-profile-img');
+                }
             }
         });
 
-        if (user.roles === 'candidate' && cand) {
-            setVal(candidateSection, '#cand-status', (cand.status || 'pending').toLowerCase());
+        if (cand) {
+            candidateSection.querySelector('#cand-status').value = (cand.status || 'pending').toLowerCase();
             const posKey = positionMap[cand.position] || 'n-a';
-            setVal(candidateSection, '#position', posKey);
-            setVal(candidateSection, '#party-list', cand.partylist || 'n-a');
-            setVal(candidateSection, '#cam-platform', cand.platform || '');
+            candidateSection.querySelector('#cand-position').value = posKey;
+            candidateSection.querySelector('#cand-party-list').value = cand.partylist || 'n-a';
+            candidateSection.querySelector('#cand-cam-platform').value = cand.platform || '';
             renderAchievements();
         } else if (studentSection) {
-            setVal(studentSection, '#status', 'active');
+            field(studentSection, 'status').value = 'active';
         }
     }
 
@@ -141,26 +158,27 @@
 
     function collectFormData() {
         const section = getActiveSection();
-        const role = section?.querySelector('#role')?.value || 'student';
+        const hasCandidacy = field(section, 'candidacy-profile')?.value === 'yes';
 
         const data = {
             id: parseInt(userId, 10),
-            first_name: section?.querySelector('#first-name')?.value.trim(),
-            last_name:  section?.querySelector('#last-name')?.value.trim(),
-            m_i:        section?.querySelector('#m-i')?.value.trim(),
-            suffix:     section?.querySelector('#suffix')?.value.trim(),
-            email:      section?.querySelector('#email')?.value.trim(),
-            program:    section?.querySelector('#program-dd')?.value,
-            department: section?.querySelector('#departmant')?.value,
-            role
+            first_name: field(section, 'first-name')?.value.trim(),
+            last_name:  field(section, 'last-name')?.value.trim(),
+            m_i:        field(section, 'm-i')?.value.trim(),
+            suffix:     field(section, 'suffix')?.value.trim(),
+            email:      field(section, 'email')?.value.trim(),
+            program:    field(section, 'program-dd')?.value,
+            department: field(section, 'departmant')?.value,
+            role: 'student',
+            is_candidate: hasCandidacy
         };
 
-        if (role === 'candidate') {
-            const posVal = candidateSection?.querySelector('#position')?.value;
+        if (hasCandidacy) {
+            const posVal = candidateSection?.querySelector('#cand-position')?.value;
             data.cand_status = candidateSection?.querySelector('#cand-status')?.value;
             data.position  = posVal && posVal !== 'n-a' ? (positionReverse[posVal] || 'President') : 'President';
-            data.partylist = candidateSection?.querySelector('#party-list')?.value;
-            data.platform  = candidateSection?.querySelector('#cam-platform')?.value.trim();
+            data.partylist = candidateSection?.querySelector('#cand-party-list')?.value;
+            data.platform  = candidateSection?.querySelector('#cand-cam-platform')?.value.trim();
             if (data.partylist === 'n-a') data.partylist = '';
         }
 
@@ -216,8 +234,8 @@
     }
 
     async function addAchievement() {
-        const title = candidateSection?.querySelector('#achi-exp')?.value.trim();
-        const desc  = candidateSection?.querySelector('#achi-exp-desc')?.value.trim();
+        const title = candidateSection?.querySelector('#cand-achi-exp')?.value.trim();
+        const desc  = candidateSection?.querySelector('#cand-achi-exp-desc')?.value.trim();
 
         if (!title) {
             alert('Please enter an achievement title.');
@@ -232,8 +250,8 @@
             });
             const json = await res.json();
             if (json.success) {
-                candidateSection.querySelector('#achi-exp').value = '';
-                candidateSection.querySelector('#achi-exp-desc').value = '';
+                candidateSection.querySelector('#cand-achi-exp').value = '';
+                candidateSection.querySelector('#cand-achi-exp-desc').value = '';
                 await loadUser();
             } else {
                 alert(json.message || 'Failed to add achievement.');
@@ -266,8 +284,9 @@
     }
 
     function setupPhotoButtons(section) {
-        const changeBtn = section?.querySelector('#change-photo');
-        const removeBtn = section?.querySelector('#remove-pho');
+        const prefix = sectionPrefix(section);
+        const changeBtn = section?.querySelector(`#${prefix}-change-photo`);
+        const removeBtn = section?.querySelector(`#${prefix}-remove-pho`);
         const img       = section?.querySelector('.img-container img');
 
         let fileInput = section?.querySelector('.photo-file-input');
@@ -296,19 +315,35 @@
     }
 
     function setupViewDocuments() {
-        candidateSection?.querySelector('#view-btn')?.addEventListener('click', e => {
+        candidateSection?.querySelector('#cand-view-btn')?.addEventListener('click', e => {
             e.preventDefault();
-            alert('Required documents:\n\n• Good Moral Character Certificate\n• Recent 2x2 Photo\n• Valid Student ID\n• Parent/Guardian Consent (if under 18)\n\nDocuments are submitted by the candidate via the Candidacy Requirements page.');
+            alert('Required documents:\n\n• Good Moral Character Certificate\n• Recent 2x2 Photo\n• Valid Student ID\n• Parent/Guardian Consent (if under 18)\n\nDocuments are submitted via the Candidacy Requirements page.');
+        });
+    }
+
+    function bindCandidacyToggle(section) {
+        field(section, 'candidacy-profile')?.addEventListener('change', e => {
+            showSection(e.target.value === 'yes');
         });
     }
 
     function bindButtons() {
-        document.querySelectorAll('#save-btn').forEach(btn => {
-            btn.addEventListener('click', e => { e.preventDefault(); saveChanges(); });
+        [
+            '#cand-save-btn', '#cand-save-btn-side', '#stud-save-btn'
+        ].forEach(selector => {
+            document.querySelector(selector)?.addEventListener('click', e => {
+                e.preventDefault();
+                saveChanges();
+            });
         });
 
-        document.querySelectorAll('#archive-btn').forEach(btn => {
-            btn.addEventListener('click', e => { e.preventDefault(); archiveUser(); });
+        [
+            '#cand-archive-btn', '#cand-archive-btn-side', '#stud-archive-btn'
+        ].forEach(selector => {
+            document.querySelector(selector)?.addEventListener('click', e => {
+                e.preventDefault();
+                archiveUser();
+            });
         });
 
         document.querySelectorAll('.btn').forEach(btn => {
@@ -320,16 +355,14 @@
             }
         });
 
-        candidateSection?.querySelector('#add-btn')?.addEventListener('click', e => {
+        candidateSection?.querySelector('#cand-add-btn')?.addEventListener('click', e => {
             e.preventDefault();
             addAchievement();
         });
 
         [candidateSection, studentSection].forEach(section => {
             setupPhotoButtons(section);
-            section?.querySelector('#role')?.addEventListener('change', e => {
-                showSection(e.target.value);
-            });
+            bindCandidacyToggle(section);
         });
 
         setupViewDocuments();

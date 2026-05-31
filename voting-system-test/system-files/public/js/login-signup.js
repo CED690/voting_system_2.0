@@ -29,6 +29,34 @@
 
     showPanel(location.hash === '#register' ? 'signup' : 'login');
 
+    // ── Password show / hide ─────────────────────────────────────────────────
+    function bindPasswordToggles(root = document) {
+        root.querySelectorAll('.password-toggle').forEach(btn => {
+            if (btn.dataset.bound === '1') return;
+            btn.dataset.bound = '1';
+
+            const inputId = btn.dataset.passwordTarget;
+            const input = inputId
+                ? document.getElementById(inputId)
+                : btn.closest('.password-field')?.querySelector('input[type="password"], input[type="text"]');
+
+            if (!input) return;
+
+            btn.addEventListener('click', e => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const show = input.getAttribute('type') === 'password';
+                input.setAttribute('type', show ? 'text' : 'password');
+                btn.classList.toggle('is-visible', show);
+                btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+                btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+            });
+        });
+    }
+
+    bindPasswordToggles();
+
     // ── Helpers ──────────────────────────────────────────────────────────────
     function setStatus(el, text, type) {
         if (!el) {
@@ -194,6 +222,16 @@
                 signupForm.reset();
                 resetAutoFields();
                 clearStatus(lookupStatus);
+                document.querySelectorAll('.password-toggle').forEach(btn => {
+                    btn.classList.remove('is-visible');
+                    btn.setAttribute('aria-label', 'Show password');
+                    btn.setAttribute('aria-pressed', 'false');
+                    delete btn.dataset.bound;
+                });
+                document.querySelectorAll('.password-field input').forEach(input => {
+                    input.setAttribute('type', 'password');
+                });
+                bindPasswordToggles();
                 setTimeout(() => showPanel('login'), 2000);
             } else {
                 setStatus(formMsg, json.message ?? 'Registration failed.', 'error');

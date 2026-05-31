@@ -35,8 +35,20 @@
         POSITION_SLUG,
         POSITION_SLUG_REVERSE,
 
-        candidatePhoto(path) {
-            return path && path.trim() !== '' ? path : DEFAULT_IMG;
+        candidatePhoto(storedPath) {
+            if (storedPath == null || String(storedPath).trim() === '') {
+                return DEFAULT_IMG;
+            }
+            const path = String(storedPath).trim();
+            if (/^https?:\/\//i.test(path)) {
+                return path;
+            }
+            const publicBase = DEFAULT_IMG.replace(/img\/[^/]+$/, '');
+            return publicBase + path.replace(/^\/+/, '');
+        },
+
+        isDefaultProfilePhoto(storedPath) {
+            return storedPath == null || String(storedPath).trim() === '';
         },
 
         async fetchJson(endpoint, options = {}) {

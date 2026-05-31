@@ -6,7 +6,7 @@
     'use strict';
 
     const API = '../../public/api/student/candidates.php';
-    const DEFAULT_IMG = '../../public/img/478589759275824754.png';
+    const { candidatePhoto, isDefaultProfilePhoto } = window.StudentCommon || {};
 
     const POSITION_SLUG_REVERSE = {
         'president': 'President',
@@ -54,13 +54,14 @@
                 `<li><p>${a.achievement}</p></li>`
             ).join('') || '<li><p>No achievements listed</p></li>';
 
-            const photo = c.profilePicture ? c.profilePicture : DEFAULT_IMG;
+            const photo = candidatePhoto(c.profilePicture);
+            const defaultClass = isDefaultProfilePhoto(c.profilePicture) ? 'default-profile-img' : '';
 
             return `
                 <div class="ch-card">
                     <div class="head-card">
                         <div class="prof">
-                            <img src="${photo}" alt="img">
+                            <img src="${photo}" alt="img" class="${defaultClass}">
                             <div class="details"><h1>${c.fullname}</h1><h3>${c.position}</h3></div>
                         </div>
                         <div class="tags"><ul>${tags}</ul></div>
@@ -92,11 +93,12 @@
         }
 
         allCandCards.innerHTML = filtered.map(c => {
-            const photo = c.profilePicture ? c.profilePicture : DEFAULT_IMG;
+            const photo = candidatePhoto(c.profilePicture);
+            const defaultClass = isDefaultProfilePhoto(c.profilePicture) ? 'default-profile-img' : '';
             return `
                 <div class="ac-card">
                     <div class="prof">
-                        <img src="${photo}" alt="img">
+                        <img src="${photo}" alt="img" class="${defaultClass}">
                         <div class="details"><h1>${c.fullname}</h1><h3>${c.position}</h3></div>
                     </div>
                     <a href="view-candidate-profile.html?id=${c.id}"><button>View Profile</button></a>

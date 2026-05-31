@@ -51,7 +51,7 @@
 				<div class = "edit-container">
 					<div class = "title">
 						<h1>User Management</h1>
-						<p>> Edit User > Candidate</p>
+						<p>> Edit User > Candidacy Profile</p>
 					</div>
 					<main>
 						<div class = "left">
@@ -61,29 +61,29 @@
                                 <p>May 10, 2026</p>
                             </div>
 							<div class = "img-container">
-								<img src = "../../../public/img/478589759275824754.png" alt = "prof">
+								<img src = "../../../public/img/478589759275824754.png" alt = "prof" class="default-profile-img">
 								<div class = "buttons">
-									<button id = "change-photo">Change Photo</button>
-									<button id = "remove-pho">Remove Photo</button>
+									<button id = "cand-change-photo" type="button">Change Photo</button>
+									<button id = "cand-remove-pho" type="button">Remove Photo</button>
 								</div>
 							</div>
 							<form class = "name-form" action = "">
 								<div class = "form-group">
-									<label for = "last-name">Last Name</label>
-									<input type = "text" id = "last-name" name = "last_name" placeholder = "Last Name">
+									<label for = "cand-last-name">Last Name</label>
+									<input type = "text" id = "cand-last-name" name = "last_name" placeholder = "Last Name">
 								</div>
 								<div class = "form-group">
-									<label for = "last-name">First Name</label>
-									<input type = "text" id = "first-name" name = "first_name" placeholder = "First Name">
+									<label for = "cand-first-name">First Name</label>
+									<input type = "text" id = "cand-first-name" name = "first_name" placeholder = "First Name">
 								</div>
 								<div class = "form-group2">
 									<div class = "form-group">
-										<label for = "m-i">M.I (Middle Initial)</label>
-										<input type = "text" id = "m-i" name = "m_i" placeholder = "M.I">
+										<label for = "cand-m-i">M.I (Middle Initial)</label>
+										<input type = "text" id = "cand-m-i" name = "m_i" placeholder = "M.I">
 									</div>
 									<div class = "form-group">
-										<label for = "suffix">Suffix</label>
-										<input type = "text" id = "suffix" name = "suffix" placeholder = "Suffix">
+										<label for = "cand-suffix">Suffix</label>
+										<input type = "text" id = "cand-suffix" name = "suffix" placeholder = "Suffix">
 									</div>
 								</div>
 							</form>
@@ -91,16 +91,16 @@
 						<div class = "right-part">
 							<form class = "details-form" action = "">
 								<div class = "form-group">
-									<label for = "email">Email Address</label>
-									<input type = "email" id = "email" name = "email" placeholder = "Email Address">
+									<label for = "cand-email">Email Address</label>
+									<input type = "email" id = "cand-email" name = "email" placeholder = "Email Address">
 								</div>
 								<div class = "form-group">
-									<label for = "stud-id">Student ID</label>
-									<input type = "text" id = "stud-id" name = "stud_id" placeholder = "Student ID" disabled>
+									<label for = "cand-stud-id">Student ID</label>
+									<input type = "text" id = "cand-stud-id" name = "stud_id" placeholder = "Student ID" disabled>
 								</div>
 								<div class = "form-group">
-									<label for = "Program">Program</label>
-									<select name = "program" id = "program-dd">
+									<label for = "cand-program-dd">Program</label>
+									<select name = "program" id = "cand-program-dd">
 										<option value = "n-a">N/A</option>
 										<option value = "BSIT">Bachelor of Science in Information Technology</option>
 										<option value = "BSIS">Bachelor of Science in Information Systems</option>
@@ -109,18 +109,22 @@
 									</select>
 								</div>
 								<div class = "form-group">
-									<label for = "department">Department</label>
-									<select name = "department" id = "departmant">
+									<label for = "cand-departmant">Department</label>
+									<select name = "department" id = "cand-departmant">
 										<option value = "n-a">N/A</option>
 										<option value = "CCST">College of Computer Science and Technology</option>
 										<option value = "COE">College of Engineering</option>
 									</select>
 								</div>
 								<div class = "form-group">
-									<label for = "role">Role</label>
-									<select name = "role" id = "role">
-										<option value = "student">Student</option>
-										<option value = "candidate">Candidate</option>
+									<label for = "cand-account-type">Account Type</label>
+									<input type = "text" id = "cand-account-type" value = "Student" disabled>
+								</div>
+								<div class = "form-group">
+									<label for = "cand-candidacy-profile">Candidacy Profile</label>
+									<select name = "has_candidacy" id = "cand-candidacy-profile">
+										<option value = "yes">Registered</option>
+										<option value = "no">None</option>
 									</select>
 								</div>
 								<div class = "form-group">
@@ -132,8 +136,8 @@
 									</select>
 								</div>
 								<div class = "form-group">
-									<label for = "Position">Position</label>
-									<select name = "position" id = "position">
+									<label for = "cand-position">Position</label>
+									<select name = "position" id = "cand-position">
 										<option value="n-a">N/A</option>
 										<option value="president">President</option>
 										<option value="vice-president">Vice President</option>
@@ -143,8 +147,8 @@
 									</select>
 								</div>
 								<div class = "form-group">
-									<label for = "party-list">Party-List</label>
-									<select name = "party-list" id = "party-list">
+									<label for = "cand-party-list">Party-List</label>
+									<select name = "party-list" id = "cand-party-list">
 										<option value="n-a">N/A</option>
 										<option value="party-list1">Party List 1</option>
 										<option value="party-list2">Part-List 2</option>
@@ -153,12 +157,12 @@
 								</div>
 								<div class = "form-group">
 									<label for = "view_docs">Required Document</label>
-									<button name = "view_docs" id="view-btn">View Documents</button>
+									<button name = "view_docs" id="cand-view-btn" type="button">View Documents</button>
 								</div>
 							</form>
 							<div class = "buttons">
-								<button id = "save-btn" class = "btn">Save Changes</button>
-								<button id = "archive-btn" class = "btn">Archive</button>
+								<button id = "cand-save-btn" class = "btn" type="button">Save Changes</button>
+								<button id = "cand-archive-btn" class = "btn" type="button">Archive</button>
 								<button  class = "btn">Cancel</button>
 							</div>
 						</div>
@@ -168,13 +172,13 @@
 							<form action="" class="cand-details-form" action = "">
 								<div class="form-group">
 									<label for="campaign">Campaign</label>
-									<textarea name="cam-platform" id="cam-platform" placeholder="Describe your campaign platform..."></textarea>
+									<textarea name="cam-platform" id="cand-cam-platform" placeholder="Describe your campaign platform..."></textarea>
 								</div>
 								<div class="form-group">
-									<label for="achi-exp">Achievements & Experiecne</label>
-									<input type="text" id="achi-exp" name="achi_exp" placeholder="Add Achievements & Experience ">
-									<textarea name="desc" id="achi-exp-desc" placeholder="Add short description (99 letters)"></textarea>
-									<button id="add-btn">Add</button>
+									<label for="cand-achi-exp">Achievements & Experiecne</label>
+									<input type="text" id="cand-achi-exp" name="achi_exp" placeholder="Add Achievements & Experience ">
+									<textarea name="desc" id="cand-achi-exp-desc" placeholder="Add short description (99 letters)"></textarea>
+									<button id="cand-add-btn" type="button">Add</button>
 								</div>
 							</form>
 							<div class="current-achi-exp">
@@ -188,8 +192,8 @@
 							</div>
 						</div>
 						<div class = "buttons">
-							<button id = "save-btn" class = "btn">Save Changes</button>
-							<button id = "archive-btn" class = "btn">Archive</button>
+							<button id = "cand-save-btn-side" class = "btn" type="button">Save Changes</button>
+							<button id = "cand-archive-btn-side" class = "btn" type="button">Archive</button>
 							<button  class = "btn">Cancel</button>
 						</div>
 					</div>
@@ -213,29 +217,29 @@
                                 <p>May 10, 2026</p>
                             </div>
 							<div class = "img-container">
-								<img src = "../../../public/img/478589759275824754.png" alt = "prof">
+								<img src = "../../../public/img/478589759275824754.png" alt = "prof" class="default-profile-img">
 								<div class = "buttons">
-									<button id = "change-photo">Change Photo</button>
-									<button id = "remove-pho">Remove Photo</button>
+									<button id = "stud-change-photo" type="button">Change Photo</button>
+									<button id = "stud-remove-pho" type="button">Remove Photo</button>
 								</div>
 							</div>
 							<form class = "name-form" action = "">
 								<div class = "form-group">
-									<label for = "last_name">Last Name</label>
-									<input type = "text" id = "last-name" name = "last_name" placeholder = "Last Name">
+									<label for = "stud-last-name">Last Name</label>
+									<input type = "text" id = "stud-last-name" name = "last_name" placeholder = "Last Name">
 								</div>
 								<div class = "form-group">
-									<label for = "first_name">First Name</label>
-									<input type = "text" id = "first-name" name = "first_name" placeholder = "First Name">
+									<label for = "stud-first-name">First Name</label>
+									<input type = "text" id = "stud-first-name" name = "first_name" placeholder = "First Name">
 								</div>
 								<div class = "form-group2">
 									<div class = "form-group">
-										<label for = "m_i">M.I (Middle Initial)</label>
-										<input type = "text" id = "m-i" name = "m_i" placeholder = "M.I">
+										<label for = "stud-m-i">M.I (Middle Initial)</label>
+										<input type = "text" id = "stud-m-i" name = "m_i" placeholder = "M.I">
 									</div>
 									<div class = "form-group">
-										<label for = "suffix">Suffix</label>
-										<input type = "text" id = "suffix" name = "suffix" placeholder = "Suffix">
+										<label for = "stud-suffix">Suffix</label>
+										<input type = "text" id = "stud-suffix" name = "suffix" placeholder = "Suffix">
 									</div>
 								</div>
 							</form>
@@ -243,16 +247,16 @@
 						<div class = "right-part">
 							<form class = "details-form" action = "">
 								<div class = "form-group">
-									<label for = "email">Email Address</label>
-									<input type = "email" id = "email" name = "email" placeholder = "Email Address">
+									<label for = "stud-email">Email Address</label>
+									<input type = "email" id = "stud-email" name = "email" placeholder = "Email Address">
 								</div>
 								<div class = "form-group">
-									<label for = "stud-id">Student ID</label>
-									<input type = "text" id = "stud-id" name = "stud_id" placeholder = "Student ID" disabled>
+									<label for = "stud-stud-id">Student ID</label>
+									<input type = "text" id = "stud-stud-id" name = "stud_id" placeholder = "Student ID" disabled>
 								</div>
 								<div class = "form-group">
-									<label for = "Program">Program</label>
-									<select name = "program" id = "program-dd">
+									<label for = "stud-program-dd">Program</label>
+									<select name = "program" id = "stud-program-dd">
 										<option value = "n-a">N/A</option>
 										<option value = "BSIT">Bachelor of Science in Information Technology</option>
 										<option value = "BSIS">Bachelor of Science in Information Systems</option>
@@ -261,23 +265,27 @@
 									</select>
 								</div>
 								<div class = "form-group">
-									<label for = "department">Department</label>
-									<select name = "department" id = "departmant">
+									<label for = "stud-departmant">Department</label>
+									<select name = "department" id = "stud-departmant">
 										<option value = "n-a">N/A</option>
 										<option value = "CCST">College of Computer Science and Technology</option>
 										<option value = "COE">College of Engineering</option>
 									</select>
 								</div>
 								<div class = "form-group">
-									<label for = "role">Role</label>
-									<select name = "role" id = "role">
-										<option value = "student">Student</option>
-										<option value = "candidate">Candidate</option>
+									<label for = "stud-account-type">Account Type</label>
+									<input type = "text" id = "stud-account-type" value = "Student" disabled>
+								</div>
+								<div class = "form-group">
+									<label for = "stud-candidacy-profile">Candidacy Profile</label>
+									<select name = "has_candidacy" id = "stud-candidacy-profile">
+										<option value = "no">None</option>
+										<option value = "yes">Registered</option>
 									</select>
 								</div>
 								<div class = "form-group">
-									<label for = "status">Status</label>
-									<select name = "status" id = "status">
+									<label for = "stud-status">Status</label>
+									<select name = "status" id = "stud-status">
 										<option value = "active">Active</option>
 										<option value = "pending">Pending</option>
 										<option value = "disabled">Disabled</option>
@@ -285,8 +293,8 @@
 								</div>
 							</form>
 							<div class = "buttons">
-								<button id = "save-btn" class = "btn">Save Changes</button>
-								<button id = "archive-btn" class = "btn">Archive</button>
+								<button id = "stud-save-btn" class = "btn" type="button">Save Changes</button>
+								<button id = "stud-archive-btn" class = "btn" type="button">Archive</button>
 								<button  class = "btn">Cancel</button>
 							</div>
 						</div>

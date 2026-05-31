@@ -86,9 +86,9 @@ try {
     $findUser = $db->prepare('SELECT id, email, roles FROM users WHERE loginID = ? LIMIT 1');
     $insertUser = $db->prepare("
         INSERT INTO users (loginID, firstname, mi, lastname, suffix, email, password, roles)
-        VALUES (:loginID, :firstname, :mi, :lastname, :suffix, :email, :password, 'candidate')
+        VALUES (:loginID, :firstname, :mi, :lastname, :suffix, :email, :password, 'student')
     ");
-    $updateRole = $db->prepare("UPDATE users SET roles = 'candidate' WHERE id = ?");
+    $updateRole = $db->prepare("UPDATE users SET roles = 'student' WHERE id = ?");
     $findCandidate = $db->prepare('SELECT id FROM candidateinfo WHERE userID = ? LIMIT 1');
     $insertCandidate = $db->prepare("
         INSERT INTO candidateinfo (userID, partylist, position, status, platform)
@@ -118,12 +118,8 @@ try {
                 $skipped[] = "{$schoolId} — skipped (admin account)";
                 continue;
             }
-            // Do not promote registered student voters to candidates
-            if ($user['roles'] === 'student') {
-                $skipped[] = "{$schoolId} — registered as student voter; skipped";
-                continue;
-            }
-            if ($user['roles'] !== 'candidate') {
+            // Ensure existing accounts use student role (candidacy is stored in candidateinfo)
+            if ($user['roles'] !== 'student' && $user['roles'] !== 'admin') {
                 $updateRole->execute([$userId]);
                 $updatedUsers++;
             }
@@ -201,7 +197,7 @@ try {
     $body = '<p>Candidate profiles were generated from the <strong>studentlist</strong> table.</p>'
         . '<ul>'
         . "<li><strong>{$createdUsers}</strong> new user account(s) created</li>"
-        . "<li><strong>{$updatedUsers}</strong> existing user(s) promoted to candidate</li>"
+        . "<li><strong>{$updatedUsers}</strong> existing user(s) updated to student role</li>"
         . "<li><strong>{$createdCandidates}</strong> candidate profile(s) created</li>"
         . '</ul>';
 

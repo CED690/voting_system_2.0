@@ -2,7 +2,7 @@
 /**
  * seed_voters.php
  * Creates student (voter) accounts so users can browse candidates and cast votes.
- * Candidates and voters are separate — run seed_candidates.php for candidates first.
+ * Run seed_candidates.php first if you need candidacy profiles on studentlist entries.
  * Run: http://localhost/voting-system-test/seed_voters.php
  */
 require_once __DIR__ . '/system-files/apps/config/dbconnection.php';
@@ -96,13 +96,7 @@ try {
         $existing = $findUser->fetch(PDO::FETCH_ASSOC);
 
         if ($existing) {
-            if ($existing['roles'] === 'candidate') {
-                $skipped++;
-                $rows .= '<tr><td colspan="4" style="padding:8px;border-bottom:1px solid #ddd;color:#856404;">'
-                    . htmlspecialchars($v['schoolID']) . ' — already a candidate account; skipped</td></tr>';
-                continue;
-            }
-            if ($existing['roles'] !== 'student') {
+            if ($existing['roles'] !== 'student' && $existing['roles'] !== 'admin') {
                 $updateStudentRole->execute([$existing['id']]);
             }
             $skipped++;
@@ -146,7 +140,7 @@ try {
         . '<p style="margin-top:20px;">Login at '
         . '<a href="system-files/apps/view/login-signup.php#login">login-signup.php</a>'
         . ' using Student ID or Email, then go to Browse → Cast Your Vote.</p>'
-        . '<p style="font-size:0.9em;color:#6c757d;"><strong>Note:</strong> Candidate accounts (2024-0001–2024-0006) cannot vote — they are election candidates. Use the voter accounts above instead.</p>';
+        . '<p style="font-size:0.9em;color:#6c757d;"><strong>Note:</strong> Candidates also log in as students and can vote. Their candidacy tools appear under My Candidacy after login.</p>';
 
     renderPage('Voter Accounts Ready', $body, $created > 0 ? 'success' : 'info');
 

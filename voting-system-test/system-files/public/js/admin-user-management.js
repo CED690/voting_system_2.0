@@ -41,18 +41,18 @@
     function getFilteredUsers() {
         if (currentView === 'archive') {
             return allUsers.filter(u =>
-                u.roles === 'candidate' &&
+                Number(u.is_candidate) === 1 &&
                 ['rejected', 'disabled', 'pending'].includes((u.candidate_status || '').toLowerCase())
             );
         }
         return allUsers.filter(u =>
-            u.roles !== 'candidate' ||
+            Number(u.is_candidate) !== 1 ||
             !['rejected', 'disabled'].includes((u.candidate_status || '').toLowerCase())
         );
     }
 
     function statusLabel(user) {
-        if (user.roles === 'candidate') {
+        if (Number(user.is_candidate) === 1) {
             const s = (user.candidate_status || 'pending').toLowerCase();
             return s.charAt(0).toUpperCase() + s.slice(1);
         }
@@ -64,6 +64,13 @@
         if (label === 'approved' || label === 'active') return 'approved';
         if (label === 'disabled' || label === 'rejected') return 'disabled';
         return 'pending';
+    }
+
+    function accountTypeLabel(user) {
+        if (Number(user.is_candidate) === 1) {
+            return 'Student · Candidacy';
+        }
+        return user.roles.charAt(0).toUpperCase() + user.roles.slice(1);
     }
 
     function renderTable() {
@@ -86,7 +93,7 @@
                 <td><p>${user.firstname} ${user.lastname}</p></td>
                 <td><p>${departmentLabel(user.department)}</p></td>
                 <td><p>${user.email || '—'}</p></td>
-                <td><p>${user.roles.charAt(0).toUpperCase() + user.roles.slice(1)}</p></td>
+                <td><p>${accountTypeLabel(user)}</p></td>
                 <td><p>${formatDate(user.createdAt)}</p></td>
                 <td><p class="${statusClass(user)}">${statusLabel(user)}</p></td>
                 <td><div class="actions-btns">

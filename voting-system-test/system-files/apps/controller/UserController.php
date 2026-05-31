@@ -111,12 +111,18 @@ class UserController {
 
         session_regenerate_id(true); 
 
+        if ($user['roles'] === 'candidate') {
+            $this->userModel->ensureStudentRole((int) $user['id']);
+            $user['roles'] = 'student';
+        }
+
         $_SESSION['user_id']    = $user['id'];
         $_SESSION['loginID']    = $user['loginID'];
         $_SESSION['firstname']  = $user['firstname'];
         $_SESSION['lastname']   = $user['lastname'];
         $_SESSION['email']      = $user['email'];
         $_SESSION['role']       = $user['roles'];
+        $_SESSION['is_candidate'] = $this->userModel->hasCandidateProfile((int) $user['id']);
 
         $this->userModel->updateLastLogin($user['id']);
 
@@ -124,9 +130,8 @@ class UserController {
         if ($isAjax) {
             // JS executes relative to: /apps/view/login-signup.php
             $redirectMap = [
-                'student'   => 'student/browse.php',
-                'candidate' => 'candidate/candidate-dashboard.php',
-                'admin'     => 'admin/dashboard.html',
+                'student' => 'student/browse.php',
+                'admin'   => 'admin/dashboard.html',
             ];
             $destination = $redirectMap[$user['roles']] ?? 'student/browse.php';
             $this->sendJson(200, true, 'Success', [], $destination);
@@ -134,9 +139,8 @@ class UserController {
         } else {
             // PHP executes relative to: /public/login.php
             $redirectMap = [
-                'student'   => '../apps/view/student/browse.php',
-                'candidate' => '../apps/view/candidate/candidate-dashboard.php',
-                'admin'     => '../apps/view/admin/dashboard.html',
+                'student' => '../apps/view/student/browse.php',
+                'admin'   => '../apps/view/admin/dashboard.html',
             ];
             $destination = $redirectMap[$user['roles']] ?? '../apps/view/student/browse.php';
             header('Location: ' . $destination);

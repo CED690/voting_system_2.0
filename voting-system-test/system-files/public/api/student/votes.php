@@ -21,17 +21,44 @@ $action = $_GET['action'] ?? '';
 
 $requiredPositions = ['President', 'Vice President', 'Secretary', 'Treasurer', 'Auditor'];
 
+function ensureBallotSubmissionsTable(PDO $db): void
+{
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS ballot_submissions (
+            userID INT NOT NULL PRIMARY KEY,
+            submitted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_ballot_submissions_user
+                FOREIGN KEY (userID) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+
+    $db->exec("
+        INSERT IGNORE INTO ballot_submissions (userID)
+        SELECT DISTINCT v.userID
+        FROM votes v
+        LEFT JOIN ballot_submissions b ON b.userID = v.userID
+        WHERE b.userID IS NULL
+    ");
+}
+
+function userHasSubmittedBallot(PDO $db, int $userId): bool
+{
+    ensureBallotSubmissionsTable($db);
+    $stmt = $db->prepare('SELECT 1 FROM ballot_submissions WHERE userID = ? LIMIT 1');
+    $stmt->execute([$userId]);
+    return (bool) $stmt->fetchColumn();
+}
+
 try {
     $dbClass = new dbconnection();
     $db = $dbClass->connect();
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     if ($action === 'status') {
-        $stmt = $db->prepare("SELECT COUNT(*) FROM votes WHERE userID = ?");
-        $stmt->execute([$userId]);
-        $hasVoted = (int)$stmt->fetchColumn() > 0;
+        $hasVoted = userHasSubmittedBallot($db, $userId);
 
         $selections = [];
+        $abstained = [];
         if ($hasVoted) {
             $stmt = $db->prepare("
                 SELECT ci.position, ci.id AS candidate_id,
@@ -46,12 +73,14 @@ try {
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
                 $selections[$row['position']] = $row;
             }
+            $abstained = array_values(array_diff($requiredPositions, array_keys($selections)));
         }
 
         echo json_encode([
-            'success'   => true,
-            'has_voted' => $hasVoted,
-            'selections'=> $selections
+            'success'    => true,
+            'has_voted'  => $hasVoted,
+            'selections' => $selections,
+            'abstained'  => $abstained,
         ]);
         exit;
     }
@@ -60,9 +89,7 @@ try {
         $data = json_decode(file_get_contents('php://input'), true);
         $votes = $data['votes'] ?? [];
 
-        $stmt = $db->prepare("SELECT COUNT(*) FROM votes WHERE userID = ?");
-        $stmt->execute([$userId]);
-        if ((int)$stmt->fetchColumn() > 0) {
+        if (userHasSubmittedBallot($db, $userId)) {
             http_response_code(409);
             echo json_encode(['success' => false, 'message' => 'You have already submitted your vote.']);
             exit;
@@ -70,18 +97,19 @@ try {
 
         if (!is_array($votes) || count($votes) !== count($requiredPositions)) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Please select one candidate for each position before confirming.']);
+            echo json_encode(['success' => false, 'message' => 'Please complete every position on your ballot before confirming.']);
             exit;
         }
 
         $submittedPositions = [];
         $db->beginTransaction();
+        ensureBallotSubmissionsTable($db);
 
         foreach ($votes as $vote) {
-            $candidateId = (int)($vote['candidate_id'] ?? 0);
-            $position    = trim($vote['position'] ?? '');
+            $position = trim($vote['position'] ?? '');
+            $candidateId = $vote['candidate_id'] ?? null;
 
-            if (!$candidateId || !in_array($position, $requiredPositions, true)) {
+            if (!in_array($position, $requiredPositions, true)) {
                 $db->rollBack();
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => 'Invalid vote data.']);
@@ -95,6 +123,14 @@ try {
                 exit;
             }
 
+            $submittedPositions[] = $position;
+
+            if ($candidateId === null || $candidateId === '' || (int) $candidateId === 0) {
+                continue;
+            }
+
+            $candidateId = (int) $candidateId;
+
             $stmt = $db->prepare("
                 SELECT id FROM candidateinfo
                 WHERE id = ? AND position = ? AND LOWER(status) = 'approved'
@@ -107,10 +143,19 @@ try {
                 exit;
             }
 
-            $stmt = $db->prepare("INSERT INTO votes (userID, candidateID) VALUES (?, ?)");
+            $stmt = $db->prepare('INSERT INTO votes (userID, candidateID) VALUES (?, ?)');
             $stmt->execute([$userId, $candidateId]);
-            $submittedPositions[] = $position;
         }
+
+        if (count($submittedPositions) !== count($requiredPositions)) {
+            $db->rollBack();
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Please complete every position on your ballot before confirming.']);
+            exit;
+        }
+
+        $stmt = $db->prepare('INSERT INTO ballot_submissions (userID) VALUES (?)');
+        $stmt->execute([$userId]);
 
         $db->commit();
         echo json_encode(['success' => true, 'message' => 'Your vote has been recorded successfully!']);
@@ -124,6 +169,12 @@ try {
         $output = fopen('php://output', 'w');
         fputcsv($output, ['Position', 'Voted Candidate', 'Party List']);
 
+        if (!userHasSubmittedBallot($db, $userId)) {
+            fputcsv($output, ['No ballot submitted yet.', '', '']);
+            fclose($output);
+            exit;
+        }
+
         $stmt = $db->prepare("
             SELECT ci.position,
                    CONCAT(u.firstname, ' ', u.lastname) AS candidate_name,
@@ -135,18 +186,27 @@ try {
             ORDER BY FIELD(ci.position, 'President', 'Vice President', 'Secretary', 'Treasurer', 'Auditor')
         ");
         $stmt->execute([$userId]);
-        
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if (empty($rows)) {
-            // Write a note if student hasn't voted yet
-            fputcsv($output, ['No votes cast yet.', '', '']);
-        } else {
-            foreach ($rows as $row) {
-                fputcsv($output, [
-                    $row['position'],
-                    $row['candidate_name'],
-                    $row['partylist'] ?: 'Independent'
-                ]);
+        $votedPositions = array_column($rows, 'position');
+
+        foreach ($requiredPositions as $position) {
+            if (in_array($position, $votedPositions, true)) {
+                $row = null;
+                foreach ($rows as $r) {
+                    if ($r['position'] === $position) {
+                        $row = $r;
+                        break;
+                    }
+                }
+                if ($row) {
+                    fputcsv($output, [
+                        $row['position'],
+                        $row['candidate_name'],
+                        $row['partylist'] ?: 'Independent',
+                    ]);
+                }
+            } else {
+                fputcsv($output, [$position, 'No vote', '']);
             }
         }
 

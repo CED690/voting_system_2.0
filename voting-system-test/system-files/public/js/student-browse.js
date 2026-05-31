@@ -7,7 +7,7 @@
 
     const {
         API_BASE, DEFAULT_IMG, POSITION_ORDER, POSITION_SLUG, POSITION_SLUG_REVERSE,
-        candidatePhoto, fetchJson, triggerDownload
+        candidatePhoto, isDefaultProfilePhoto, fetchJson, triggerDownload
     } = StudentCommon;
 
     const graphContainer   = document.getElementById('standings-graphs');
@@ -125,7 +125,7 @@
                 <div class="ch-card">
                     <div class="head-card">
                         <div class="prof">
-                            <img src="${candidatePhoto(c.profilePicture)}" alt="img">
+                            <img src="${candidatePhoto(c.profilePicture)}" alt="img" class="${isDefaultProfilePhoto(c.profilePicture) ? 'default-profile-img' : ''}">
                             <div class="details"><h1>${c.fullname}</h1><h3>${c.position}</h3></div>
                         </div>
                         <div class="tags"><ul>${tags}</ul></div>
@@ -159,7 +159,7 @@
         allCandCards.innerHTML = filtered.map(c => `
             <div class="ac-card">
                 <div class="prof">
-                    <img src="${candidatePhoto(c.profilePicture)}" alt="img">
+                    <img src="${candidatePhoto(c.profilePicture)}" alt="img" class="${isDefaultProfilePhoto(c.profilePicture) ? 'default-profile-img' : ''}">
                     <div class="details"><h1>${c.fullname}</h1><h3>${c.position}</h3></div>
                 </div>
                 <a href="../view-candidate-profile.html?id=${c.id}"><button>View Profile</button></a>

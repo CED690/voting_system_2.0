@@ -115,4 +115,28 @@ class User {
             error_log("updateLastLogin Error: " . $e->getMessage());
         }
     }
+
+    public function ensureStudentRole(int $userId): void {
+        try {
+            $stmt = $this->db->prepare(
+                "UPDATE users SET roles = 'student' WHERE id = :id AND roles = 'candidate'"
+            );
+            $stmt->execute([':id' => $userId]);
+        } catch (PDOException $e) {
+            error_log("ensureStudentRole Error: " . $e->getMessage());
+        }
+    }
+
+    public function hasCandidateProfile(int $userId): bool {
+        try {
+            $stmt = $this->db->prepare(
+                "SELECT id FROM candidateinfo WHERE userID = :id LIMIT 1"
+            );
+            $stmt->execute([':id' => $userId]);
+            return (bool) $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            error_log("hasCandidateProfile Error: " . $e->getMessage());
+            return false;
+        }
+    }
 }

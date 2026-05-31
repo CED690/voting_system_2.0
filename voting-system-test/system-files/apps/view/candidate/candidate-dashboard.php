@@ -1,10 +1,13 @@
 <?php
 session_start();
 
-if (empty($_SESSION['user_id']) || $_SESSION['role'] !== 'candidate') {
-    header('Location: ../login-signup.php#login');
-    exit;
-}
+require_once __DIR__ . '/../../config/session_helpers.php';
+require_once __DIR__ . '/../../config/dbconnection.php';
+
+use apps\config\dbconnection;
+
+$db = (new dbconnection())->connect();
+requireStudentCandidateSession($db);
 
 $firstname = htmlspecialchars($_SESSION['firstname']);
 $lastname  = htmlspecialchars($_SESSION['lastname']);
@@ -44,6 +47,28 @@ $lastname  = htmlspecialchars($_SESSION['lastname']);
                                 <p>Running for: </p><p class="pos">Position</p>
                             </div>
                         </div>
+                        <div class="profile-pic">
+                            <h3>Profile Picture</h3>
+                            <div class="img-container">
+                                <img
+                                    id="candidate-profile-img"
+                                    src="../../../public/img/478589759275824754.png"
+                                    alt="Profile picture"
+                                    class="default-profile-img"
+                                >
+                            </div>
+                            <input
+                                type="file"
+                                id="profile-photo-input"
+                                accept="image/jpeg,image/png,image/webp"
+                                hidden
+                            >
+                            <div class="profile-pic-actions">
+                                <button type="button" id="change-profile-photo">Upload Photo</button>
+                                <button type="button" id="remove-profile-photo" class="secondary">Use Default</button>
+                            </div>
+                            <p class="profile-pic-hint">A default placeholder is shown until you upload your own photo.</p>
+                        </div>
                         <div class="body">
                             <div class="info">
                                 <h3>Basic Information</h3>
@@ -58,13 +83,7 @@ $lastname  = htmlspecialchars($_SESSION['lastname']);
                                     <li><h3>Candidate Status:</h3><h5>Pending</h5></li>
                                 </ul>
                             </div>
-                            <div class="profile-pic">
-                                <h3>Profile</h3>
-                                <div class="img-container">
-                                    <img src="../../../public/img/478589759275824754.png" alt="profile-pic">
-                                </div>
-                                <button id="edit-btn">Edit Profile</button>
-                            </div>
+                            <button id="edit-btn">Edit Profile</button>
                         </div>
                     </div>
                     <div class="right">
@@ -82,7 +101,7 @@ $lastname  = htmlspecialchars($_SESSION['lastname']);
                             </div>
                             <div class="action-card">
                                 <div class="top"><img src="" alt="img"><h3>Edit Profile</h3></div>
-                                <p>Update your campaign details and profile photo</p>
+                                <p>Update your campaign details</p>
                                 <button id="edit-profile-action">Edit Profile</button>
                             </div>
                         </div>
@@ -97,14 +116,6 @@ $lastname  = htmlspecialchars($_SESSION['lastname']);
         <div class="edit-container">
             <div class="left">
                 <div class="left-part">
-                    <div class="img-container">
-                        <img id="modal-profile-img" src="../../../public/img/478589759275824754.png" alt="prof">
-                        <div class="buttons">
-                            <button id="change-photo-btn" type="button">Change Photo</button>
-                            <button id="remove-pho" type="button">Remove Photo</button>
-                            <input type="file" id="modal-file-input" style="display: none;" accept="image/*">
-                        </div>
-                    </div>
                     <form id="left-modal-form" onsubmit="return false;">
                         <div class="form-group">
                             <label for="modal-partylist">Party-List</label>
@@ -141,6 +152,9 @@ $lastname  = htmlspecialchars($_SESSION['lastname']);
         </div>
     </div>
 
+    <?php $switchPage = 'candidacy'; $isCandidate = true; include __DIR__ . '/../student/partials/student-switch-btn.php'; ?>
+    <script>window.STUDENT_DEFAULT_IMG = '../../../public/img/478589759275824754.png';</script>
+    <script src="../../../public/js/student-common.js?v=<?= time() ?>"></script>
     <script src="../../../public/js/candidate-dashboard.js?v=<?= time() ?>"></script>
 </body>
 </html>

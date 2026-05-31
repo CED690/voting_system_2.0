@@ -1,10 +1,13 @@
 <?php
 session_start();
 
-if (empty($_SESSION['user_id']) || $_SESSION['role'] !== 'candidate') {
-    header('Location: ../login-signup.php#login');
-    exit;
-}
+require_once __DIR__ . '/../../config/session_helpers.php';
+require_once __DIR__ . '/../../config/dbconnection.php';
+
+use apps\config\dbconnection;
+
+$db = (new dbconnection())->connect();
+requireStudentCandidateSession($db);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,8 +24,7 @@ if (empty($_SESSION['user_id']) || $_SESSION['role'] !== 'candidate') {
 					<div class="title">
 						<h1>University </h1><h1 class="elec">Election</h1>
 					</div>
-					<div class = "right-nav" style="display: flex; gap: 12px; align-items: center;">
-						<a href="candidate-dashboard.php" class="lgn-txt" style="color: white; font-weight: 500; text-decoration: none;">Dashboard</a>
+					<div class = "right-nav">
 						<button id = "logout-btn"><a class="lgn-txt" href="../../../public/logout.php">Logout</a></button>
 					</div>
 				</div>
@@ -133,6 +135,7 @@ if (empty($_SESSION['user_id']) || $_SESSION['role'] !== 'candidate') {
                 </div>
             </div>
         </section>
+        <?php $switchPage = 'candidacy'; $isCandidate = true; include __DIR__ . '/../student/partials/student-switch-btn.php'; ?>
         <script src="../../../public/js/candidate-requirements.js?v=<?= time() ?>"></script>
     </body>
 </html>

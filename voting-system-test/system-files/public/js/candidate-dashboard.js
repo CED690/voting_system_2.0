@@ -5,7 +5,7 @@
     'use strict';
 
     const API = '../../../public/api/candidate/profile.php';
-    const DEFAULT_IMG = '../../../public/img/478589759275824754.png';
+    const { candidatePhoto, isDefaultProfilePhoto } = window.StudentCommon || {};
 
     const fields = {
         position: document.querySelector('.title .pos'),
@@ -14,12 +14,14 @@
         posInfo:  document.querySelector('.info li:nth-child(6) p'),
         party:    document.querySelector('.info li:nth-child(7) p'),
         status:   document.querySelector('.info li:nth-child(8) h5'),
-        profileImg: document.querySelector('.profile-pic .img-container img'),
     };
 
+    const profileImg = document.getElementById('candidate-profile-img');
+    const profilePhotoInput = document.getElementById('profile-photo-input');
+    const changeProfilePhotoBtn = document.getElementById('change-profile-photo');
+    const removeProfilePhotoBtn = document.getElementById('remove-profile-photo');
+
     const modal = document.getElementById('edit-profile-modal');
-    const modalProfileImg = document.getElementById('modal-profile-img');
-    const modalFileInput = document.getElementById('modal-file-input');
     const modalPartylist = document.getElementById('modal-partylist');
     const modalPlatform = document.getElementById('modal-platform');
     const modalAchievementTitle = document.getElementById('modal-achievement-title');
@@ -28,11 +30,16 @@
 
     let profileData = null;
     let currentAchievements = [];
-    let isPhotoRemoved = false;
 
     function statusLabel(status) {
         if (!status) return 'Pending';
         return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+
+    function updateProfileImage(storedPath) {
+        if (!profileImg || !candidatePhoto) return;
+        profileImg.src = candidatePhoto(storedPath);
+        profileImg.classList.toggle('default-profile-img', isDefaultProfilePhoto(storedPath));
     }
 
     async function loadProfile() {
@@ -50,23 +57,42 @@
             if (fields.posInfo)  fields.posInfo.textContent   = profileData.position || '—';
             if (fields.party)    fields.party.textContent     = profileData.partylist || 'Independent';
             if (fields.status)   fields.status.textContent    = statusLabel(profileData.status);
-            if (fields.profileImg) {
-                fields.profileImg.src = profileData.profilePicture || DEFAULT_IMG;
-            }
+
+            updateProfileImage(profileData.profilePicture);
         } catch (err) {
             console.error('Failed to load candidate profile:', err);
         }
     }
 
+    async function uploadProfilePhoto(file) {
+        const formData = new FormData();
+        formData.append('photo', file);
+
+        const res = await fetch(`${API}?action=upload_photo`, {
+            method: 'POST',
+            body: formData,
+        });
+        const json = await res.json();
+        if (!json.success) {
+            throw new Error(json.message || 'Failed to upload profile photo.');
+        }
+        return json;
+    }
+
+    async function removeProfilePhoto() {
+        const res = await fetch(`${API}?action=remove_photo`, { method: 'POST' });
+        const json = await res.json();
+        if (!json.success) {
+            throw new Error(json.message || 'Failed to remove profile photo.');
+        }
+        return json;
+    }
+
     function openModal() {
         if (!profileData || !modal) return;
 
-        // Reset values
-        modalProfileImg.src = profileData.profilePicture || DEFAULT_IMG;
         modalPartylist.value = profileData.partylist || '';
         modalPlatform.value = profileData.platform || '';
-        modalFileInput.value = '';
-        isPhotoRemoved = false;
 
         renderModalAchievements();
         modal.style.display = 'flex';
@@ -156,12 +182,6 @@
         const formData = new FormData();
         formData.append('partylist', modalPartylist.value.trim());
         formData.append('platform', modalPlatform.value.trim());
-        formData.append('remove_photo', isPhotoRemoved);
-
-        const file = modalFileInput.files?.[0];
-        if (file) {
-            formData.append('profile_photo', file);
-        }
 
         try {
             const res = await fetch(`${API}?action=save`, {
@@ -182,31 +202,49 @@
         }
     }
 
-    // Modal Control Bindings
+    changeProfilePhotoBtn?.addEventListener('click', () => profilePhotoInput?.click());
+
+    profilePhotoInput?.addEventListener('change', async () => {
+        const file = profilePhotoInput.files?.[0];
+        profilePhotoInput.value = '';
+        if (!file) return;
+
+        try {
+            const json = await uploadProfilePhoto(file);
+            profileData.profilePicture = json.profilePicture;
+            updateProfileImage(json.profilePicture);
+            alert('Profile photo updated.');
+        } catch (err) {
+            console.error(err);
+            alert(err.message || 'Error uploading profile photo.');
+        }
+    });
+
+    removeProfilePhotoBtn?.addEventListener('click', async () => {
+        if (!profileData?.profilePicture) {
+            return;
+        }
+        if (!confirm('Remove your photo and use the default placeholder?')) {
+            return;
+        }
+
+        try {
+            await removeProfilePhoto();
+            profileData.profilePicture = null;
+            updateProfileImage(null);
+            alert('Profile photo reset to default.');
+        } catch (err) {
+            console.error(err);
+            alert(err.message || 'Error removing profile photo.');
+        }
+    });
+
     document.getElementById('edit-btn')?.addEventListener('click', openModal);
     document.getElementById('edit-profile-action')?.addEventListener('click', openModal);
     document.getElementById('cancel-btn')?.addEventListener('click', closeModal);
     document.getElementById('modal-add-achievement-btn')?.addEventListener('click', addAchievement);
     document.getElementById('save-btn')?.addEventListener('click', saveProfileChanges);
 
-    // Photo Button Bindings
-    document.getElementById('change-photo-btn')?.addEventListener('click', () => modalFileInput?.click());
-    
-    modalFileInput?.addEventListener('change', () => {
-        const file = modalFileInput.files?.[0];
-        if (file && modalProfileImg) {
-            modalProfileImg.src = URL.createObjectURL(file);
-            isPhotoRemoved = false;
-        }
-    });
-
-    document.getElementById('remove-pho')?.addEventListener('click', () => {
-        if (modalProfileImg) modalProfileImg.src = DEFAULT_IMG;
-        modalFileInput.value = '';
-        isPhotoRemoved = true;
-    });
-
-    // Card tab switching for Edit Profile Modal
     const leftCard = modal?.querySelector('.left');
     const rightCard = modal?.querySelector('.right');
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * create_candidate.php
- * Creates a demo candidate account that logs in to the candidate dashboard.
+ * Creates a demo student account with a candidate profile extension.
  * Run: http://localhost/voting-system-test/create_candidate.php
  */
 require_once __DIR__ . '/system-files/apps/config/dbconnection.php';
@@ -10,7 +10,7 @@ use apps\config\dbconnection;
 
 header('Content-Type: text/html; charset=utf-8');
 
-$loginID   = '2024-0201';
+$loginID   = '2024-0007';
 $email     = 'candidate@university.edu';
 $password  = 'candidate12345';
 $firstname = 'Demo';
@@ -41,16 +41,16 @@ try {
     $stmt->execute([$loginID, $email]);
     $existing = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($existing && $existing['roles'] === 'candidate' && $existing['candidate_id']) {
+    if ($existing && $existing['candidate_id']) {
         renderBox(
             'Candidate Account Already Exists',
-            '<p>A candidate account is already set up with these credentials.</p>'
+            '<p>A student account with a candidate profile is already set up with these credentials.</p>'
             . '<table style="border-collapse:collapse;width:100%;margin-top:15px;">'
             . '<tr><td style="padding:8px;border-bottom:1px solid #ddd;font-weight:bold;">Student ID</td><td style="padding:8px;border-bottom:1px solid #ddd;"><code>' . htmlspecialchars($loginID) . '</code></td></tr>'
             . '<tr><td style="padding:8px;border-bottom:1px solid #ddd;font-weight:bold;">Email</td><td style="padding:8px;border-bottom:1px solid #ddd;"><code>' . htmlspecialchars($email) . '</code></td></tr>'
             . '<tr><td style="padding:8px;border-bottom:1px solid #ddd;font-weight:bold;">Password</td><td style="padding:8px;border-bottom:1px solid #ddd;"><code>' . htmlspecialchars($password) . '</code></td></tr>'
             . '</table>'
-            . '<p style="margin-top:20px;">Log in at <a href="system-files/apps/view/login-signup.php#login">login-signup.php</a> — you will be redirected to the candidate dashboard.</p>',
+            . '<p style="margin-top:20px;">Log in at <a href="system-files/apps/view/login-signup.php#login">login-signup.php</a> — use student login to vote and access My Candidacy from the browse page.</p>',
             'info'
         );
         exit;
@@ -69,12 +69,12 @@ try {
 
     if ($existing) {
         $userId = (int) $existing['id'];
-        $db->prepare("UPDATE users SET roles = 'candidate', password = ?, firstname = ?, lastname = ?, mi = ?, email = ? WHERE id = ?")
+        $db->prepare("UPDATE users SET roles = 'student', password = ?, firstname = ?, lastname = ?, mi = ?, email = ? WHERE id = ?")
            ->execute([password_hash($password, PASSWORD_BCRYPT), $firstname, $lastname, $mi, $email, $userId]);
     } else {
         $db->prepare('
             INSERT INTO users (loginID, firstname, mi, lastname, suffix, email, password, roles)
-            VALUES (?, ?, ?, ?, ?, ?, ?, \'candidate\')
+            VALUES (?, ?, ?, ?, ?, ?, ?, \'student\')
         ')->execute([
             $loginID, $firstname, $mi, $lastname, '',
             $email, password_hash($password, PASSWORD_BCRYPT),
@@ -105,7 +105,7 @@ try {
 
     renderBox(
         'Candidate Account Created',
-        '<p>A demo candidate account has been created. Log in to access the candidate dashboard.</p>'
+        '<p>A demo student account with a candidate profile has been created. Log in with student credentials to vote and manage candidacy.</p>'
         . '<table style="border-collapse:collapse;width:100%;margin-top:15px;">'
         . '<tr><td style="padding:8px;border-bottom:1px solid #ddd;font-weight:bold;">Student ID</td><td style="padding:8px;border-bottom:1px solid #ddd;"><code>' . htmlspecialchars($loginID) . '</code></td></tr>'
         . '<tr><td style="padding:8px;border-bottom:1px solid #ddd;font-weight:bold;">Email</td><td style="padding:8px;border-bottom:1px solid #ddd;"><code>' . htmlspecialchars($email) . '</code></td></tr>'

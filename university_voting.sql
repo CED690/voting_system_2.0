@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 31, 2026 at 03:14 PM
+-- Generation Time: May 31, 2026 at 06:18 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,7 +52,28 @@ INSERT INTO `achievements` (`id`, `achievement`, `description`, `candidateID`) V
 (17, 'Community Outreach Volunteer', 'Organized barangay literacy programs and university outreach drives.', 8),
 (18, 'Event Coordinator', 'Managed logistics for major university events and student assemblies.', 8),
 (19, 'Student Council Officer', 'Served as class representative for two consecutive years.', 9),
-(20, 'Leadership Seminar Graduate', 'Completed university leadership and governance training.', 9);
+(20, 'Leadership Seminar Graduate', 'Completed university leadership and governance training.', 9),
+(21, 'Student Council Officer', 'Served as class representative for two consecutive academic years.', 10),
+(22, 'Leadership Seminar Graduate', 'Completed university leadership and governance training program.', 10);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ballot_submissions`
+--
+
+CREATE TABLE `ballot_submissions` (
+  `userID` int(11) NOT NULL,
+  `submitted_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `ballot_submissions`
+--
+
+INSERT INTO `ballot_submissions` (`userID`, `submitted_at`) VALUES
+(11, '2026-06-01 00:09:14'),
+(17, '2026-06-01 00:09:14');
 
 -- --------------------------------------------------------
 
@@ -78,13 +99,14 @@ CREATE TABLE `candidateinfo` (
 --
 
 INSERT INTO `candidateinfo` (`id`, `profilePicture`, `platform`, `partylist`, `position`, `status`, `createdAt`, `updatedAt`, `userID`, `documents`) VALUES
-(3, NULL, 'Lead with transparency and inclusive student governance. I will strengthen student services, open budget discussions, and create regular town halls so every voice is heard.', 'Progressive Alliance', 'President', 'approved', '2026-05-31 20:06:58', '2026-05-31 20:06:58', 11, NULL),
+(3, 'uploads/candidates/candidate_3.jpg', 'Lead with transparency and inclusive student governance. I will strengthen student services, open budget discussions, and create regular town halls so every voice is heard.', 'Progressive Alliance', 'President', 'approved', '2026-05-31 20:06:58', '2026-05-31 23:35:26', 11, NULL),
 (4, NULL, 'Support the president in delivering meaningful campus reforms while coordinating student organizations and ensuring accountability across all student council initiatives.', 'Unity Party', 'Vice President', 'approved', '2026-05-31 20:06:58', '2026-05-31 20:06:58', 8, NULL),
-(5, NULL, 'Keep accurate records, improve communication between the student body and council, and streamline document access for all university organizations.', 'Student Reform Coalition', 'Secretary', 'approved', '2026-05-31 20:06:58', '2026-05-31 20:06:58', 12, NULL),
-(6, NULL, 'Ensure responsible fund management with clear reporting, fair allocation of resources, and student-led oversight of all council expenditures.', 'Progressive Alliance', 'Treasurer', 'approved', '2026-05-31 20:06:58', '2026-05-31 20:06:58', 13, NULL),
-(7, NULL, 'Promote fiscal accountability through regular audits, transparent reporting, and strict compliance with university financial policies.', 'Independent', 'Auditor', 'approved', '2026-05-31 20:06:58', '2026-05-31 20:06:58', 9, NULL),
-(8, NULL, 'Lead with transparency and inclusive student governance. I will strengthen student services, open budget discussions, and create regular town halls so every voice is heard.', 'Unity Party', 'President', 'approved', '2026-05-31 20:06:58', '2026-05-31 20:06:58', 14, NULL),
-(9, NULL, 'Lead with transparency and inclusive student governance. I will strengthen student services, open budget discussions, and create regular town halls so every voice is heard.', 'Progressive Alliance', 'President', 'approved', '2026-05-31 20:18:58', '2026-05-31 20:18:58', 18, NULL);
+(5, 'uploads/candidates/candidate_5.webp', 'Keep accurate records, improve communication between the student body and council, and streamline document access for all university organizations.', 'Student Reform Coalition', 'Secretary', 'approved', '2026-05-31 20:06:58', '2026-05-31 23:54:24', 12, NULL),
+(6, 'uploads/candidates/candidate_6.webp', 'Ensure responsible fund management with clear reporting, fair allocation of resources, and student-led oversight of all council expenditures.', 'Progressive Alliance', 'Treasurer', 'approved', '2026-05-31 20:06:58', '2026-05-31 23:55:03', 13, NULL),
+(7, 'uploads/candidates/candidate_7.webp', 'Promote fiscal accountability through regular audits, transparent reporting, and strict compliance with university financial policies.', 'Independent', 'Auditor', 'approved', '2026-05-31 20:06:58', '2026-05-31 23:56:33', 9, NULL),
+(8, 'uploads/candidates/candidate_8.jpg', 'Lead with transparency and inclusive student governance. I will strengthen student services, open budget discussions, and create regular town halls so every voice is heard.', 'Unity Party', 'President', 'approved', '2026-05-31 20:06:58', '2026-06-01 00:02:04', 14, NULL),
+(9, 'uploads/candidates/candidate_9.jpg', 'Lead with transparency and inclusive student governance. I will strengthen student services, open budget discussions, and create regular town halls so every voice is heard.', 'Progressive Alliance', 'President', 'approved', '2026-05-31 20:18:58', '2026-05-31 23:56:57', 18, NULL),
+(10, 'uploads/candidates/candidate_10.jpg', 'Lead with transparency and inclusive student governance. I will strengthen student services, open budget discussions, and create regular town halls so every voice is heard.', 'Independent', 'President', 'approved', '2026-05-31 23:30:35', '2026-06-01 00:05:07', 15, NULL);
 
 -- --------------------------------------------------------
 
@@ -145,17 +167,17 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `lastname`, `firstname`, `mi`, `suffix`, `email`, `roles`, `password`, `isFirstVote`, `createdAt`, `lastLogin`, `loginID`) VALUES
-(8, 'Reyes', 'Maria', 'G', NULL, 'christianity0213@gmail.com', 'candidate', '$2y$10$rhhsP4p.IWt2rkceIvc3U.rOL4k4ew63q7WR2Avq9.zjVZWFlRiua', 1, '2026-05-23 10:35:43', '2026-05-23 11:12:12', '2024-0002'),
-(9, 'Fernandez', 'Miguel', 'R', '', 'fernandez@gmail.com', 'candidate', '$2y$10$cMzTtu8UjYjNAbRF/q/J9eVoukwshlctf2kDmGhSiTk8At./YumDy', 1, '2026-05-31 19:29:07', '2026-05-31 20:41:39', '2024-0005'),
-(10, 'Administrator', 'System', NULL, NULL, 'admin@university.edu', 'admin', '$2y$10$zqumWaGoirVgizp4nSWgxO4lqL3n1qrDnDfqnyD1X4WzVwZUGR3TK', 1, '2026-05-31 19:33:55', '2026-05-31 20:58:55', 'admin'),
-(11, 'Dela Cruz', 'Juan', 'S', '', 'uanelaruz.20240001@university.edu', 'candidate', '$2y$10$SQiACARFFIgaWY4KRpOlxuEhkCJ5ehANXickrKPKxurXnqAmyZrta', 1, '2026-05-31 20:06:58', '2026-05-31 21:08:43', '2024-0001'),
-(12, 'Bautista', 'Carlos', 'L', 'Jr.', 'arlosautista.20240003@university.edu', 'candidate', '$2y$10$fS.VLWWWlc2Y6FjZ0T.CneoCD8BdwSUMXLZmma1PWrHDfVfa1DdXS', 1, '2026-05-31 20:06:58', NULL, '2024-0003'),
-(13, 'Santos', 'Anna', 'C', '', 'nnaantos.20240004@university.edu', 'candidate', '$2y$10$D4dcn7UGqfyIYnwwboVdGODaJ3RQIoTnGb6KPMNQ8k9cJ6pWVPzTW', 1, '2026-05-31 20:06:58', NULL, '2024-0004'),
-(14, 'Torres', 'Sofia', 'M', '', 'ofiaorres.20240006@university.edu', 'candidate', '$2y$10$/FUpIIgQ.sBYwhZ36J9x1OHi9BdC35JtFp1NoMU7IkmSHnricHNRK', 1, '2026-05-31 20:06:58', NULL, '2024-0006'),
-(15, 'Mendoza', 'Liza', 'A', '', 'liza.mendoza@university.edu', 'student', '$2y$10$0yz8B1ufk1Nu0yhVbJzSq.g.22/G0cXRs1rN6VlH4m2EbbvhnVNra', 1, '2026-05-31 20:12:42', NULL, '2024-0101'),
-(16, 'Villanueva', 'Mark', 'D', '', 'mark.villanueva@university.edu', 'student', '$2y$10$4mZIpJeCYNsKa5JyJAWVFeh4CgFhO/BfY4qkiPVsec1olKP0HWKSu', 1, '2026-05-31 20:12:42', NULL, '2024-0102'),
+(8, 'Reyes', 'Maria', 'G', NULL, 'christianity0213@gmail.com', 'student', '$2y$10$rhhsP4p.IWt2rkceIvc3U.rOL4k4ew63q7WR2Avq9.zjVZWFlRiua', 1, '2026-05-23 10:35:43', '2026-05-23 11:12:12', '2024-0002'),
+(9, 'Fernandez', 'Miguel', 'R', '', 'fernandez@gmail.com', 'student', '$2y$10$cMzTtu8UjYjNAbRF/q/J9eVoukwshlctf2kDmGhSiTk8At./YumDy', 1, '2026-05-31 19:29:07', '2026-05-31 23:56:12', '2024-0005'),
+(10, 'Administrator', 'System', NULL, NULL, 'admin@university.edu', 'admin', '$2y$10$zqumWaGoirVgizp4nSWgxO4lqL3n1qrDnDfqnyD1X4WzVwZUGR3TK', 1, '2026-05-31 19:33:55', '2026-05-31 23:06:07', 'admin'),
+(11, 'Dela Cruz', 'Juan', 'S', '', 'uanelaruz.20240001@university.edu', 'student', '$2y$10$SQiACARFFIgaWY4KRpOlxuEhkCJ5ehANXickrKPKxurXnqAmyZrta', 1, '2026-05-31 20:06:58', '2026-05-31 23:27:36', '2024-0001'),
+(12, 'Bautista', 'Carlos', 'L', 'Jr.', 'arlosautista.20240003@university.edu', 'student', '$2y$10$fS.VLWWWlc2Y6FjZ0T.CneoCD8BdwSUMXLZmma1PWrHDfVfa1DdXS', 1, '2026-05-31 20:06:58', '2026-05-31 23:54:13', '2024-0003'),
+(13, 'Santos', 'Anna', 'C', '', 'nnaantos.20240004@university.edu', 'student', '$2y$10$D4dcn7UGqfyIYnwwboVdGODaJ3RQIoTnGb6KPMNQ8k9cJ6pWVPzTW', 1, '2026-05-31 20:06:58', '2026-05-31 23:54:55', '2024-0004'),
+(14, 'Torres', 'Sofia', 'M', '', 'ofiaorres.20240006@university.edu', 'student', '$2y$10$/FUpIIgQ.sBYwhZ36J9x1OHi9BdC35JtFp1NoMU7IkmSHnricHNRK', 1, '2026-05-31 20:06:58', '2026-06-01 00:01:53', '2024-0006'),
+(15, 'Mendoza', 'Liza', 'A', '', 'liza.mendoza@university.edu', 'student', '$2y$10$0yz8B1ufk1Nu0yhVbJzSq.g.22/G0cXRs1rN6VlH4m2EbbvhnVNra', 1, '2026-05-31 20:12:42', '2026-06-01 00:05:00', '2024-0101'),
+(16, 'Villanueva', 'Mark', 'D', '', 'mark.villanueva@university.edu', 'student', '$2y$10$4mZIpJeCYNsKa5JyJAWVFeh4CgFhO/BfY4qkiPVsec1olKP0HWKSu', 1, '2026-05-31 20:12:42', '2026-05-31 23:49:28', '2024-0102'),
 (17, 'Lim', 'Grace', 'P', '', 'grace.lim@university.edu', 'student', '$2y$10$RNvlHIZH7cVJFuAc6Y1RXO1qU2sJGiN041gKPdt3ekiLbkDoWa9g6', 1, '2026-05-31 20:12:42', '2026-05-31 21:04:12', '2024-0103'),
-(18, 'Candidate', 'Demo', 'R', '', 'candidate@university.edu', 'candidate', '$2y$10$y.lr5bZGEryiQgTTpXGAyOAAonLKG09L1F68M7rTqU.aj0ycbHwKy', 1, '2026-05-31 20:18:58', '2026-05-31 21:05:11', '2024-0201');
+(18, 'Candidate', 'Demo', 'R', '', 'candidate@university.edu', 'student', '$2y$10$y.lr5bZGEryiQgTTpXGAyOAAonLKG09L1F68M7rTqU.aj0ycbHwKy', 1, '2026-05-31 20:18:58', '2026-05-31 23:56:44', '2024-0201');
 
 -- --------------------------------------------------------
 
@@ -179,7 +201,12 @@ INSERT INTO `votes` (`id`, `userID`, `candidateID`, `votedAt`) VALUES
 (2, 17, 4, '2026-05-31 20:15:45'),
 (3, 17, 5, '2026-05-31 20:15:45'),
 (4, 17, 6, '2026-05-31 20:15:45'),
-(5, 17, 7, '2026-05-31 20:15:45');
+(5, 17, 7, '2026-05-31 20:15:45'),
+(6, 11, 9, '2026-05-31 23:05:43'),
+(7, 11, 4, '2026-05-31 23:05:43'),
+(8, 11, 5, '2026-05-31 23:05:43'),
+(9, 11, 6, '2026-05-31 23:05:43'),
+(10, 11, 7, '2026-05-31 23:05:43');
 
 --
 -- Indexes for dumped tables
@@ -191,6 +218,12 @@ INSERT INTO `votes` (`id`, `userID`, `candidateID`, `votedAt`) VALUES
 ALTER TABLE `achievements`
   ADD PRIMARY KEY (`id`),
   ADD KEY `candidateID` (`candidateID`);
+
+--
+-- Indexes for table `ballot_submissions`
+--
+ALTER TABLE `ballot_submissions`
+  ADD PRIMARY KEY (`userID`);
 
 --
 -- Indexes for table `candidateinfo`
@@ -230,13 +263,13 @@ ALTER TABLE `votes`
 -- AUTO_INCREMENT for table `achievements`
 --
 ALTER TABLE `achievements`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `candidateinfo`
 --
 ALTER TABLE `candidateinfo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `studentlist`
@@ -254,7 +287,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `votes`
 --
 ALTER TABLE `votes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables
@@ -265,6 +298,12 @@ ALTER TABLE `votes`
 --
 ALTER TABLE `achievements`
   ADD CONSTRAINT `achievements_ibfk_1` FOREIGN KEY (`candidateID`) REFERENCES `candidateinfo` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `ballot_submissions`
+--
+ALTER TABLE `ballot_submissions`
+  ADD CONSTRAINT `fk_ballot_submissions_user` FOREIGN KEY (`userID`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `candidateinfo`

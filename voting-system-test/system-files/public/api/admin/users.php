@@ -40,7 +40,8 @@ try {
                 u.createdAt,
                 sl.department,
                 sl.program,
-                ci.status as candidate_status
+                ci.status as candidate_status,
+                CASE WHEN ci.id IS NOT NULL THEN 1 ELSE 0 END as is_candidate
             FROM users u
             LEFT JOIN studentlist sl ON u.loginID = sl.schoolID
             LEFT JOIN candidateinfo ci ON u.id = ci.userID
@@ -50,9 +51,9 @@ try {
         $params = [];
 
         if ($roleFilter === 'student') {
-            $query .= " AND u.roles = 'student'";
-        } elseif ($roleFilter === 'candidate') {
-            $query .= " AND u.roles = 'candidate'";
+            $query .= " AND u.roles = 'student' AND ci.id IS NULL";
+        } elseif ($roleFilter === 'with_candidacy' || $roleFilter === 'candidate') {
+            $query .= " AND ci.id IS NOT NULL";
         }
 
         if ($search !== '') {

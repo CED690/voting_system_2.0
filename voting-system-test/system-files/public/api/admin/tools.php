@@ -24,7 +24,14 @@ try {
     if ($action === 'list_audit') {
         header('Content-Type: application/json; charset=utf-8');
 
-        $users = $db->query("SELECT loginID, firstname, lastname, roles FROM users ORDER BY id DESC LIMIT 20")->fetchAll(PDO::FETCH_ASSOC);
+        $users = $db->query("
+            SELECT u.loginID, u.firstname, u.lastname, u.roles,
+                   CASE WHEN ci.id IS NOT NULL THEN 1 ELSE 0 END AS is_candidate
+            FROM users u
+            LEFT JOIN candidateinfo ci ON ci.userID = u.id
+            ORDER BY u.id DESC
+            LIMIT 20
+        ")->fetchAll(PDO::FETCH_ASSOC);
 
         $actions = [
             'Logged into the system',
@@ -42,7 +49,7 @@ try {
 
             if ($u['roles'] === 'admin') {
                 $act = 'Exported election analytics';
-            } elseif ($u['roles'] === 'candidate' && $index % 2 === 0) {
+            } elseif ((int) $u['is_candidate'] === 1 && $index % 2 === 0) {
                 $act = 'Submitted candidacy requirements';
             }
 
@@ -104,7 +111,14 @@ try {
         fputcsv($output, ['Timestamp', 'User ID', 'Actor Name', 'Action Executed', 'IP Address']);
 
         // Generate some sample realistic log entries based on actual users in database
-        $users = $db->query("SELECT loginID, firstname, lastname, roles FROM users ORDER BY id DESC LIMIT 20")->fetchAll(PDO::FETCH_ASSOC);
+        $users = $db->query("
+            SELECT u.loginID, u.firstname, u.lastname, u.roles,
+                   CASE WHEN ci.id IS NOT NULL THEN 1 ELSE 0 END AS is_candidate
+            FROM users u
+            LEFT JOIN candidateinfo ci ON ci.userID = u.id
+            ORDER BY u.id DESC
+            LIMIT 20
+        ")->fetchAll(PDO::FETCH_ASSOC);
         
         $actions = [
             'Logged into the system',
@@ -122,7 +136,7 @@ try {
             // Adjust actions based on roles
             if ($u['roles'] === 'admin') {
                 $act = 'Exported election analytics';
-            } elseif ($u['roles'] === 'candidate' && $index % 2 === 0) {
+            } elseif ((int) $u['is_candidate'] === 1 && $index % 2 === 0) {
                 $act = 'Submitted candidacy requirements';
             }
 

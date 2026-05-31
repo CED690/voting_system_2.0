@@ -6,7 +6,16 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     exit;
 }
 
+require_once __DIR__ . '/../../config/session_helpers.php';
+require_once __DIR__ . '/../../config/dbconnection.php';
+
+use apps\config\dbconnection;
+
+$db = (new dbconnection())->connect();
+syncCandidateSession($db, (int) $_SESSION['user_id']);
+
 $firstname = htmlspecialchars($_SESSION['firstname']);
+$isCandidate = !empty($_SESSION['is_candidate']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,8 +47,8 @@ $firstname = htmlspecialchars($_SESSION['firstname']);
                 <div class="hero-stud-text">
                     <h1>Welcome, <?= $firstname ?>!</h1>
                     <p>Participate in shaping the university's tomorrow. Vote securely for your preferred candidate.</p>
+                    <a href="voting.php" class="hero-vote-btn">Vote</a>
                 </div>
-                <a href="voting.php"><button>Cast Your Vote</button></a>
                 <button id="export-btn">Export Ballot</button>
             </div>
         </div>
@@ -99,6 +108,7 @@ $firstname = htmlspecialchars($_SESSION['firstname']);
             </div>
         </div>
     </section>
+    <?php if ($isCandidate): $switchPage = 'browse'; include __DIR__ . '/partials/student-switch-btn.php'; endif; ?>
     <script src="../../../public/js/student-common.js?v=<?= time() ?>"></script>
     <script src="../../../public/js/student-browse.js?v=<?= time() ?>"></script>
 </body>

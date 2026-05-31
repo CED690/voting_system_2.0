@@ -5,6 +5,15 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     header('Location: ../login-signup.php#login');
     exit;
 }
+
+require_once __DIR__ . '/../../config/session_helpers.php';
+require_once __DIR__ . '/../../config/dbconnection.php';
+
+use apps\config\dbconnection;
+
+$db = (new dbconnection())->connect();
+syncCandidateSession($db, (int) $_SESSION['user_id']);
+$isCandidate = !empty($_SESSION['is_candidate']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,7 +31,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
 						<h1>University </h1><h1 class="elec">Election</h1>
 					</div>
 					<div class = "right-nav">
-						<a href="browse.php" style="color: white; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 8px;">Back to Home</a>
+						<button id="logout-btn">
+							<a class="lgn-txt" href="../../../public/logout.php">Logout</a>
+						</button>
 					</div>
 				</div>
 			</div>
@@ -37,6 +48,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
 					<div class = "choices-container">
 						<div class = "cho-title">
 							<h3 id="position-title">President</h3>
+							<p id="vote-skip-hint" class="vote-skip-hint">You may select a candidate, or click NEXT to skip voting for this position.</p>
 							<div class = "line"></div>
 						</div>
 						<div class="cand-cards" id="cand-cards"></div>
@@ -134,7 +146,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
 				<div class = "modal-container">
 					<div class = "top-container">
 						<div class = "left">
-							<img src = "../../../public/img/478589759275824754.png" alt = "profile-img">
+							<img src = "../../../public/img/478589759275824754.png" alt = "profile-img" class="default-profile-img">
 							<div class = "prof-info">
 								<h1>Candidate name</h1>
 								<div class = "details">
@@ -158,6 +170,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
 				</div>
 			</div>
 		</section>
+		<?php $switchPage = 'vote'; include __DIR__ . '/partials/student-switch-btn.php'; ?>
 		<script src="../../../public/js/student-common.js?v=<?= time() ?>"></script>
 		<script src="../../../public/js/student-voting.js?v=<?= time() ?>"></script>
 	</body>

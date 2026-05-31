@@ -86,6 +86,12 @@ try {
         $db->beginTransaction();
 
         // 1. Update basic user details
+        $role = $data['role'] ?? 'student';
+        $hasCandidacy = !empty($data['is_candidate'])
+            || ($data['has_candidacy'] ?? '') === 'yes'
+            || $role === 'candidate';
+        $storedRole = ($role === 'admin') ? 'admin' : 'student';
+
         $stmt = $db->prepare("
             UPDATE users 
             SET firstname = :firstname, lastname = :lastname, mi = :mi, suffix = :suffix, email = :email, roles = :roles
@@ -97,7 +103,7 @@ try {
             ':mi'        => $data['m_i'] ?? '',
             ':suffix'    => $data['suffix'] ?? '',
             ':email'     => $data['email'],
-            ':roles'     => $data['role'],
+            ':roles'     => $storedRole,
             ':id'        => $userId
         ]);
 
@@ -124,8 +130,8 @@ try {
             ]);
         }
 
-        // 3. Handle Candidate Info (create or update if role = candidate)
-        if ($data['role'] === 'candidate') {
+        // 3. Handle candidate profile extension (student role + candidateinfo)
+        if ($hasCandidacy) {
             $stmt = $db->prepare("SELECT id FROM candidateinfo WHERE userID = ?");
             $stmt->execute([$userId]);
             $candId = $stmt->fetchColumn();

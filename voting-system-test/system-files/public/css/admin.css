@@ -48,6 +48,13 @@ body {
 	color: var(--text);
 }
 
+.default-profile-img,
+.edit-profile-candidate .img-container img,
+.edit-profile-student .img-container img {
+	background-color: #bdbdbd;
+	object-fit: cover;
+}
+
 .container {
 	padding: 4rem 3rem;
 	width: 100%;
@@ -1496,8 +1503,11 @@ body {
 		main {
 			display: flex;
 			gap: 2rem;
+			width: 100%;
+			align-items: stretch;
 
 			.audit-log {
+				flex: 2.2;
 				display: flex;
 				flex-direction: column;
 				background-color: var(--bg);
@@ -1522,21 +1532,38 @@ body {
 					table {
 						width: 100%;
 						border-collapse: collapse;
-						display: flex;
-						gap: 1rem;
+						margin-bottom: 1.5rem;
+						table-layout: fixed;
 
 						td, th {
 							text-align: left;
-							padding: 1rem 2rem;
+							padding: 1rem 1.5rem;
+							word-wrap: break-word;
+							overflow-wrap: break-word;
+							white-space: normal;
 						}
 
 						th {
-							color: var(--sub-text);
+							color: var(--sub-text-blue);
+							font-weight: 600;
 							border-bottom: var(--sub-text-3) .125rem solid;
+							font-size: 0.95rem;
+						}
+
+						th:nth-child(1) {
+							width: 30%;
+						}
+						th:nth-child(2) {
+							width: 25%;
+						}
+						th:nth-child(3) {
+							width: 45%;
 						}
 
 						td {
-							color: var(--sub-text-2);
+							color: var(--text-blue);
+							border-bottom: var(--sub-text-4) 1px solid;
+							font-size: 0.9rem;
 						}
 					}
 
@@ -1558,6 +1585,7 @@ body {
 			}
 
 			.export-result {
+				flex: 1;
 				display: flex;
 				flex-direction: column;
 				background-color: var(--bg);
@@ -1566,7 +1594,6 @@ body {
 				box-shadow: var(--shadow-s);
 				gap: 2rem;
 				min-height: 20rem;
-				height: 100%;
 
 				.title {
 					display: flex;

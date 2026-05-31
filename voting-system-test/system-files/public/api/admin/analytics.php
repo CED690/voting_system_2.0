@@ -28,12 +28,18 @@ try {
     $totalStudents = (int)$stmt->fetchColumn();
 
     // 2. Total Candidates
-    $stmt = $db->query("SELECT COUNT(*) FROM users WHERE roles = 'candidate'");
+    $stmt = $db->query("SELECT COUNT(*) FROM candidateinfo");
     $totalCandidates = (int)$stmt->fetchColumn();
 
-    // 3. Votes Cast
-    $stmt = $db->query("SELECT COUNT(DISTINCT userID) FROM votes");
-    $votesCast = (int)$stmt->fetchColumn();
+    // 3. Ballots submitted (includes voters who abstained on some or all positions)
+    $votesCast = 0;
+    try {
+        $stmt = $db->query("SELECT COUNT(*) FROM ballot_submissions");
+        $votesCast = (int) $stmt->fetchColumn();
+    } catch (PDOException $e) {
+        $stmt = $db->query("SELECT COUNT(DISTINCT userID) FROM votes");
+        $votesCast = (int) $stmt->fetchColumn();
+    }
 
     // 4. Voter Turnout (Voted / Total Students)
     $voterTurnout = 0;

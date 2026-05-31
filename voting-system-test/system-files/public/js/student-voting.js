@@ -7,7 +7,7 @@
 
     const {
         API_BASE, DEFAULT_IMG, POSITION_ORDER,
-        candidatePhoto, fetchJson
+        candidatePhoto, isDefaultProfilePhoto, fetchJson
     } = StudentCommon;
 
     const voteSection    = document.querySelector('.vote-section');
@@ -61,6 +61,9 @@
                         profilePicture: data.profilePicture,
                         position: pos
                     };
+                });
+                (statusJson.abstained || []).forEach(pos => {
+                    selections[pos] = null;
                 });
                 showAlreadyVoted();
                 return;
@@ -117,8 +120,15 @@
 
         if (!candCardsEl) return;
 
+        const skipHint = document.getElementById('vote-skip-hint');
+        if (skipHint) {
+            skipHint.textContent = selections[position] === null
+                ? `You chose not to vote for ${position}. Select a candidate or click NEXT to continue.`
+                : `You may select a candidate, or click NEXT to skip voting for ${position}.`;
+        }
+
         if (candidates.length === 0) {
-            candCardsEl.innerHTML = `<p style="padding:2rem;color:#888;">No approved candidates for ${position}.</p>`;
+            candCardsEl.innerHTML = `<p style="padding:2rem;color:#888;">No approved candidates for ${position}. Click NEXT if you do not wish to vote for this position.</p>`;
             return;
         }
 
@@ -127,7 +137,7 @@
             return `
                 <div class="c-card ${isSelected ? 'voted' : ''}" data-candidate-id="${c.id}">
                     <div class="img-container">
-                        <img src="${candidatePhoto(c.profilePicture)}" alt="img">
+                        <img src="${candidatePhoto(c.profilePicture)}" alt="img" class="${isDefaultProfilePhoto(c.profilePicture) ? 'default-profile-img' : ''}">
                     </div>
                     <div class="c-body">
                         <h1>${c.fullname}</h1>
@@ -187,7 +197,9 @@
             viewModal.querySelector('.prof-info h1').textContent = `${c.firstname} ${c.lastname}`;
             viewModal.querySelector('.prof-info .details h3').textContent = c.position;
             viewModal.querySelector('.prof-info .details p').textContent = c.partylist || 'Independent';
-            viewModal.querySelector('.top-container .left img').src = candidatePhoto(c.profilePicture);
+            const modalImg = viewModal.querySelector('.top-container .left img');
+            modalImg.src = candidatePhoto(c.profilePicture);
+            modalImg.classList.toggle('default-profile-img', isDefaultProfilePhoto(c.profilePicture));
             viewModal.querySelector('.plat p').textContent = c.platform || 'No platform provided.';
 
             const achList = viewModal.querySelector('.achi-exp ul');
@@ -206,17 +218,22 @@
 
         reviewList.innerHTML = POSITION_ORDER.map(pos => {
             const sel = selections[pos];
-            const img = sel ? candidatePhoto(sel.profilePicture) : DEFAULT_IMG;
-            const name = sel ? sel.fullname : '— Not selected —';
+            const isAbstain = sel === null;
+            const hasVote = sel && sel.id;
+            const img = hasVote ? candidatePhoto(sel.profilePicture) : DEFAULT_IMG;
+            const imgClass = hasVote && !isDefaultProfilePhoto(sel.profilePicture) ? '' : 'default-profile-img';
+            let name = '— Not selected —';
+            if (isAbstain) name = 'No vote';
+            else if (hasVote) name = sel.fullname;
             return `
-                <li>
+                <li class="${isAbstain ? 'review-abstain' : ''}">
                     <h3>${pos}</h3>
                     <div class="details">
-                        <img src="${img}" alt="">
+                        <img src="${img}" alt="" class="${imgClass}">
                         <p>${name}</p>
                     </div>
                     <div class="img">
-                        ${sel ? `<button class="edit-vote-btn" data-step="${POSITION_ORDER.indexOf(pos)}" title="Change">✎</button>` : ''}
+                        ${sel !== undefined ? `<button class="edit-vote-btn" data-step="${POSITION_ORDER.indexOf(pos)}" title="Change">✎</button>` : ''}
                     </div>
                 </li>`;
         }).join('');
@@ -230,15 +247,23 @@
     }
 
     function goNext() {
-        if (currentStep < POSITION_ORDER.length) {
-            const position = getCurrentPosition();
-            if (currentStep < POSITION_ORDER.length && !selections[position]) {
-                alert(`Please select a candidate for ${position} before continuing.`);
+        if (currentStep >= POSITION_ORDER.length) {
+            return;
+        }
+
+        const position = getCurrentPosition();
+        const choice = selections[position];
+
+        if (choice === undefined) {
+            const skipMsg = `You did not select a candidate for ${position}.\n\nYou will not vote for this position.\n\nContinue?`;
+            if (!confirm(skipMsg)) {
                 return;
             }
-            currentStep++;
-            renderStep();
+            selections[position] = null;
         }
+
+        currentStep++;
+        renderStep();
     }
 
     function goPrev() {
@@ -264,20 +289,25 @@
     confirmBtn?.addEventListener('click', async () => {
         if (hasVoted) return;
 
-        const missing = POSITION_ORDER.filter(p => !selections[p]);
-        if (missing.length) {
-            alert('Please complete all position selections before confirming.');
-            currentStep = POSITION_ORDER.indexOf(missing[0]);
+        const undecided = POSITION_ORDER.filter(p => selections[p] === undefined);
+        if (undecided.length) {
+            alert('Please review every position before confirming. Use PREV to go back to any you have not finished.');
+            currentStep = POSITION_ORDER.indexOf(undecided[0]);
             renderStep();
             return;
         }
 
-        if (!confirm('Confirm your final vote? This action cannot be undone.')) return;
+        const abstained = POSITION_ORDER.filter(p => selections[p] === null);
+        let confirmMsg = 'Confirm your final ballot? This action cannot be undone.';
+        if (abstained.length) {
+            confirmMsg += `\n\nYou are not voting for: ${abstained.join(', ')}.`;
+        }
+        if (!confirm(confirmMsg)) return;
 
         try {
             const votes = POSITION_ORDER.map(pos => ({
                 position: pos,
-                candidate_id: selections[pos].id
+                candidate_id: selections[pos]?.id ?? null
             }));
 
             const res = await fetch(`${API_BASE}/votes.php?action=submit`, {

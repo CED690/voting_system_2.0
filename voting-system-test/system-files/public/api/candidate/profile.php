@@ -7,16 +7,27 @@ session_start();
 
 header('Content-Type: application/json; charset=utf-8');
 
-if (empty($_SESSION['user_id']) || $_SESSION['role'] !== 'candidate') {
+require_once __DIR__ . '/../../../apps/config/session_helpers.php';
+require_once __DIR__ . '/../../../apps/config/dbconnection.php';
+require_once __DIR__ . '/../../../apps/config/profile_picture.php';
+
+use apps\config\dbconnection;
+
+$db = (new dbconnection())->connect();
+
+if (empty($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized access.']);
     exit;
 }
 
-require_once __DIR__ . '/../../../apps/config/dbconnection.php';
-use apps\config\dbconnection;
-
 $userId = (int) $_SESSION['user_id'];
+
+if (!userHasCandidateProfile($db, $userId)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized access.']);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_GET['action'] ?? 'save';
@@ -27,31 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'save') {
             $partylist = $_POST['partylist'] ?? '';
             $platform = $_POST['platform'] ?? '';
-            $removePhoto = filter_var($_POST['remove_photo'] ?? false, FILTER_VALIDATE_BOOLEAN);
-            
-            $profilePicPath = null;
-            if (!$removePhoto && !empty($_FILES['profile_photo']['tmp_name'])) {
-                $uploadDir = __DIR__ . '/../../img/';
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
-                }
-                $ext = pathinfo($_FILES['profile_photo']['name'], PATHINFO_EXTENSION);
-                $filename = uniqid('profile_') . '.' . $ext;
-                if (move_uploaded_file($_FILES['profile_photo']['tmp_name'], $uploadDir . $filename)) {
-                    $profilePicPath = '../../../public/img/' . $filename;
-                }
-            }
-            
-            if ($removePhoto) {
-                $stmt = $db->prepare("UPDATE candidateinfo SET partylist = ?, platform = ?, profilePicture = NULL WHERE userID = ?");
-                $stmt->execute([$partylist, $platform, $userId]);
-            } else if ($profilePicPath) {
-                $stmt = $db->prepare("UPDATE candidateinfo SET partylist = ?, platform = ?, profilePicture = ? WHERE userID = ?");
-                $stmt->execute([$partylist, $platform, $profilePicPath, $userId]);
-            } else {
-                $stmt = $db->prepare("UPDATE candidateinfo SET partylist = ?, platform = ? WHERE userID = ?");
-                $stmt->execute([$partylist, $platform, $userId]);
-            }
+
+            $stmt = $db->prepare("UPDATE candidateinfo SET partylist = ?, platform = ? WHERE userID = ?");
+            $stmt->execute([$partylist, $platform, $userId]);
             
             echo json_encode(['success' => true, 'message' => 'Profile updated successfully!']);
             exit;
@@ -110,6 +99,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             echo json_encode(['success' => true, 'message' => 'Achievement removed successfully.']);
             exit;
+
+        } elseif ($action === 'upload_photo') {
+            $result = saveCandidateProfilePictureUpload($db, $userId, $_FILES['photo'] ?? []);
+            if (!$result['success']) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => $result['message']]);
+                exit;
+            }
+            echo json_encode([
+                'success' => true,
+                'message' => 'Profile photo updated.',
+                'profilePicture' => $result['path'],
+            ]);
+            exit;
+
+        } elseif ($action === 'remove_photo') {
+            if (!removeCandidateProfilePicture($db, $userId)) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Candidate profile not found.']);
+                exit;
+            }
+            echo json_encode(['success' => true, 'message' => 'Profile photo removed.', 'profilePicture' => null]);
+            exit;
         }
         
     } catch (Exception $e) {
@@ -143,7 +155,7 @@ try {
 
     $achievements = [];
     if ($profile['candidate_id']) {
-        $stmt = $db->prepare('SELECT achievement, description FROM achievements WHERE candidateID = ?');
+        $stmt = $db->prepare('SELECT id, achievement, description FROM achievements WHERE candidateID = ?');
         $stmt->execute([$profile['candidate_id']]);
         $achievements = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
