@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="../../../public/css/admin.css">
+	<title>University Voting</title>
+</head>
+	<body>
+		<div class = "sidebar">
+			<div class = "container">
+				<div class = "sidebar-content">
+					<div class="title">
+						<h1>University </h1><h1 class="elec">Election</h1>
+					</div>
+					<div class = "body">
+						<ul>
+							<li>
+								<a href="../admin/dashboard.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-dashboard.png" alt = "icon">
+									<span>Dashboard</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/view-vote.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-view-vote.png" alt = "icon">	
+									<span>View Vote</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/user-management.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-user-management.png" alt = "icon">
+									<span>User Management</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/tools.html" class = "active">
+									<img src = "../../../public/img/icons/i-tools.png" alt = "icon">
+									<span>Tools</span>
+								</a>
+							</li>
+						</ul>
+						<button id = "logout-btn">Logout</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<section class="tools-sec">
+            <div class="container">
+                <div class="tools-container">
+                    <div class = "title">
+						<h1>Tools</h1>
+					</div>
+                    <main>
+                        <div class="audit-log">
+                            <h3>Audit Log</h3>
+                            <div class="body">
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>User</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="audit-table-body">
+                                    </tbody>
+                                </table>
+                                <button id="export-audit-btn">Export Log</button>
+                            </div>
+                        </div>
+                        <div class="export-result">
+                            <div class="title">
+                                <h3>Export Result</h3>
+                                <p>Generate an official election of current results for all positions.</p>
+                            </div>
+                            <img src="../../../public/img/icons/i-analytic.png" alt="">
+                            <button id="export-result-btn">Export Result</button>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </section>
+		<script src="../../../public/js/admin-common.js"></script>
+		<script src="../../../public/js/admin-tools.js"></script>
+	</body>
+</html>
+

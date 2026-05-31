@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../public/css/style.css">
+    <title>Candidates</title>
+</head>
+    <body>
+        <header>
+			<div class = "container">
+				<div class = "header-content">
+					<div class="title">
+						<h1>University </h1><h1 class="elec">Election</h1>
+					</div>
+					<div class = "right-nav">
+						<a href="index.php">Home</a>
+						<a href="candidates.html" class="active">Candidates</a>
+						<button id = "login-btn"><a class="lgn-txt" href="login-signup.php">Login</a></button>
+					</div>
+				</div>
+			</div>
+		</header>
+        <section class = "hero-section">
+			<div class = "container">
+				<div class ="hero-container">
+					<div class = "hs-text">
+						<h1>Meet Our Candidates</h1>
+						<p>Learn about the candidates running for Student President. View their profiles, achievements, and platforms.</p>
+					</div>
+					<button>Cast Your Vote</button>
+				</div>
+			</div>
+		</section>
+        <section class = "candidate-highlight-sec">
+			<div class = "container">
+				<div class = "cand-high-container">
+					<div class = "cand-high-title">
+						<h1>Candidate Highlights</h1>
+						<div class="line"></div>
+					</div>
+					<div class = "cand-high-cards" id="highlight-cards">
+						<!-- Dynamically populated candidate highlights -->
+					</div>
+				</div>
+			</div>
+		</section>
+        <section class="all-candidates-sec">
+			<div class="container">
+				<div class="all-cand-container">
+					<div class = "all-cand-title">
+						<h1>All Candidates</h1>
+						<div class="line"></div>
+					</div>
+					<div class="all-cand-body">
+                        <nav>    
+                            <div class="custom-select">
+                                <select name="position" id="position-filter">
+                                    <option value="">All Positions</option>
+                                    <option value="president">President</option>
+                                    <option value="vice-president">Vice President</option>
+                                    <option value="secretary">Secretary</option>
+                                    <option value="treasurer">Treasurer</option>
+                                    <option value="auditor">Auditor</option>
+                                </select>
+                                <span class="custom-arrow">
+                                </span>
+                            </div>
+                            <h3>No. of Candidates: <span id="cand-count">0</span></h3>
+                        </nav>
+                        <div class="all-cand-cards" id="all-cand-cards">
+                            <!-- Dynamically populated candidates -->
+                        </div>
+                    </div>
+				</div>
+			</div>
+		</section>
+		<script src="../../public/js/candidates.js"></script>
+    </body>
+    <footer>
+		<div class = "container">
+			<p>© 2026 University Election System. All rights reserved.</p>
+		</div>
+	</footer>
+</html>

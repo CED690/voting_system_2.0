@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="../../../public/css/admin.css">
+	<title>University Voting</title>
+</head>
+	<body>
+		<div class = "sidebar">
+			<div class = "container">
+				<div class = "sidebar-content">
+					<div class="title">
+						<h1>University </h1><h1 class="elec">Election</h1>
+					</div>
+					<div class = "body">
+						<ul>
+							<li>
+								<a href="../admin/dashboard.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-dashboard.png" alt = "icon">
+									<span>Dashboard</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/view-vote.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-view-vote.png" alt = "icon">	
+									<span>View Vote</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/user-management.html" class = "active">
+									<img src = "../../../public/img/icons/i-user-management.png" alt = "icon">
+									<span>User Management</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/tools.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-tools.png" alt = "icon">
+									<span>Tools</span>
+								</a>
+							</li>
+						</ul>
+						<button id = "logout-btn">Logout</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<section class = "edit-profile-candidate">
+			<div class = "container">
+				<div class = "edit-container">
+					<div class = "title">
+						<h1>User Management</h1>
+						<p>> Edit User > Candidate</p>
+					</div>
+					<main>
+						<div class = "left">
+						<div class = "left-part">
+                            <div class="last-log">
+                                <h3>Last login</h3>
+                                <p>May 10, 2026</p>
+                            </div>
+							<div class = "img-container">
+								<img src = "../../../public/img/478589759275824754.png" alt = "prof">
+								<div class = "buttons">
+									<button id = "change-photo">Change Photo</button>
+									<button id = "remove-pho">Remove Photo</button>
+								</div>
+							</div>
+							<form class = "name-form" action = "">
+								<div class = "form-group">
+									<label for = "last-name">Last Name</label>
+									<input type = "text" id = "last-name" name = "last_name" placeholder = "Last Name">
+								</div>
+								<div class = "form-group">
+									<label for = "last-name">First Name</label>
+									<input type = "text" id = "first-name" name = "first_name" placeholder = "First Name">
+								</div>
+								<div class = "form-group2">
+									<div class = "form-group">
+										<label for = "m-i">M.I (Middle Initial)</label>
+										<input type = "text" id = "m-i" name = "m_i" placeholder = "M.I">
+									</div>
+									<div class = "form-group">
+										<label for = "suffix">Suffix</label>
+										<input type = "text" id = "suffix" name = "suffix" placeholder = "Suffix">
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class = "right-part">
+							<form class = "details-form" action = "">
+								<div class = "form-group">
+									<label for = "email">Email Address</label>
+									<input type = "email" id = "email" name = "email" placeholder = "Email Address">
+								</div>
+								<div class = "form-group">
+									<label for = "stud-id">Student ID</label>
+									<input type = "text" id = "stud-id" name = "stud_id" placeholder = "Student ID" disabled>
+								</div>
+								<div class = "form-group">
+									<label for = "Program">Program</label>
+									<select name = "program" id = "program-dd">
+										<option value = "n-a">N/A</option>
+										<option value = "BSIT">Bachelor of Science in Information Technology</option>
+										<option value = "BSIS">Bachelor of Science in Information Systems</option>
+										<option value = "BSIE">Bachelor of Science in Industrial Engineering</option>
+										<option value = "BSCE">Bachelor of Science in Computer Engineering</option>
+									</select>
+								</div>
+								<div class = "form-group">
+									<label for = "department">Department</label>
+									<select name = "department" id = "departmant">
+										<option value = "n-a">N/A</option>
+										<option value = "CCST">College of Computer Science and Technology</option>
+										<option value = "COE">College of Engineering</option>
+									</select>
+								</div>
+								<div class = "form-group">
+									<label for = "role">Role</label>
+									<select name = "role" id = "role">
+										<option value = "student">Student</option>
+										<option value = "candidate">Candidate</option>
+									</select>
+								</div>
+								<div class = "form-group">
+									<label for = "cand-status">Candidacy Status</label>
+									<select name = "cand-status" id = "cand-status">
+										<option value = "Approved">Approved</option>
+										<option value = "pending">Pending</option>
+										<option value = "disabled">Disabled</option>
+									</select>
+								</div>
+								<div class = "form-group">
+									<label for = "Position">Position</label>
+									<select name = "position" id = "position">
+										<option value="n-a">N/A</option>
+										<option value="president">President</option>
+										<option value="vice-president">Vice President</option>
+										<option value="secretary">Secretary</option>
+										<option value="treasurer">Treasurer</option>
+										<option value="auditor">Auditor</option>
+									</select>
+								</div>
+								<div class = "form-group">
+									<label for = "party-list">Party-List</label>
+									<select name = "party-list" id = "party-list">
+										<option value="n-a">N/A</option>
+										<option value="party-list1">Party List 1</option>
+										<option value="party-list2">Part-List 2</option>
+										<option value="party-list3">Party-List 3</option>
+									</select>
+								</div>
+								<div class = "form-group">
+									<label for = "view_docs">Required Document</label>
+									<button name = "view_docs" id="view-btn">View Documents</button>
+								</div>
+							</form>
+							<div class = "buttons">
+								<button id = "save-btn" class = "btn">Save Changes</button>
+								<button id = "archive-btn" class = "btn">Archive</button>
+								<button  class = "btn">Cancel</button>
+							</div>
+						</div>
+					</div>
+					<div class = "right">
+						<div class="right-body">
+							<form action="" class="cand-details-form" action = "">
+								<div class="form-group">
+									<label for="campaign">Campaign</label>
+									<textarea name="cam-platform" id="cam-platform" placeholder="Describe your campaign platform..."></textarea>
+								</div>
+								<div class="form-group">
+									<label for="achi-exp">Achievements & Experiecne</label>
+									<input type="text" id="achi-exp" name="achi_exp" placeholder="Add Achievements & Experience ">
+									<textarea name="desc" id="achi-exp-desc" placeholder="Add short description (99 letters)"></textarea>
+									<button id="add-btn">Add</button>
+								</div>
+							</form>
+							<div class="current-achi-exp">
+								<ul>
+									<li>
+										<h3>Achievement</h3>
+										<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Explicabo quam earum exercitationem laborum blanditiis repudiandae.</p>
+										<button id="x-btn">Remove</button>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class = "buttons">
+							<button id = "save-btn" class = "btn">Save Changes</button>
+							<button id = "archive-btn" class = "btn">Archive</button>
+							<button  class = "btn">Cancel</button>
+						</div>
+					</div>
+					</main>
+				</div>
+			</div>
+		</section>
+		<section class = "edit-profile-student">
+			<div class = "container">
+				<div class = "edit-container">
+					<main>
+						<div class = "title">
+							<h1>User Management</h1>
+							<p>> Edit User > Student</p>
+						</div>
+						<div class="main">
+						<div class = "left">
+						<div class = "left-part">
+                            <div class="last-log">
+                                <h3>Last login:</h3>
+                                <p>May 10, 2026</p>
+                            </div>
+							<div class = "img-container">
+								<img src = "../../../public/img/478589759275824754.png" alt = "prof">
+								<div class = "buttons">
+									<button id = "change-photo">Change Photo</button>
+									<button id = "remove-pho">Remove Photo</button>
+								</div>
+							</div>
+							<form class = "name-form" action = "">
+								<div class = "form-group">
+									<label for = "last_name">Last Name</label>
+									<input type = "text" id = "last-name" name = "last_name" placeholder = "Last Name">
+								</div>
+								<div class = "form-group">
+									<label for = "first_name">First Name</label>
+									<input type = "text" id = "first-name" name = "first_name" placeholder = "First Name">
+								</div>
+								<div class = "form-group2">
+									<div class = "form-group">
+										<label for = "m_i">M.I (Middle Initial)</label>
+										<input type = "text" id = "m-i" name = "m_i" placeholder = "M.I">
+									</div>
+									<div class = "form-group">
+										<label for = "suffix">Suffix</label>
+										<input type = "text" id = "suffix" name = "suffix" placeholder = "Suffix">
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class = "right-part">
+							<form class = "details-form" action = "">
+								<div class = "form-group">
+									<label for = "email">Email Address</label>
+									<input type = "email" id = "email" name = "email" placeholder = "Email Address">
+								</div>
+								<div class = "form-group">
+									<label for = "stud-id">Student ID</label>
+									<input type = "text" id = "stud-id" name = "stud_id" placeholder = "Student ID" disabled>
+								</div>
+								<div class = "form-group">
+									<label for = "Program">Program</label>
+									<select name = "program" id = "program-dd">
+										<option value = "n-a">N/A</option>
+										<option value = "BSIT">Bachelor of Science in Information Technology</option>
+										<option value = "BSIS">Bachelor of Science in Information Systems</option>
+										<option value = "BSIE">Bachelor of Science in Industrial Engineering</option>
+										<option value = "BSCE">Bachelor of Science in Computer Engineering</option>
+									</select>
+								</div>
+								<div class = "form-group">
+									<label for = "department">Department</label>
+									<select name = "department" id = "departmant">
+										<option value = "n-a">N/A</option>
+										<option value = "CCST">College of Computer Science and Technology</option>
+										<option value = "COE">College of Engineering</option>
+									</select>
+								</div>
+								<div class = "form-group">
+									<label for = "role">Role</label>
+									<select name = "role" id = "role">
+										<option value = "student">Student</option>
+										<option value = "candidate">Candidate</option>
+									</select>
+								</div>
+								<div class = "form-group">
+									<label for = "status">Status</label>
+									<select name = "status" id = "status">
+										<option value = "active">Active</option>
+										<option value = "pending">Pending</option>
+										<option value = "disabled">Disabled</option>
+									</select>
+								</div>
+							</form>
+							<div class = "buttons">
+								<button id = "save-btn" class = "btn">Save Changes</button>
+								<button id = "archive-btn" class = "btn">Archive</button>
+								<button  class = "btn">Cancel</button>
+							</div>
+						</div>
+					</div>
+					</div>
+					</main>
+				</div>
+			</div>
+		</section>
+		<script src="../../../public/js/admin-common.js"></script>
+		<script src="../../../public/js/admin-edit-user.js"></script>
+	</body>
+</html>

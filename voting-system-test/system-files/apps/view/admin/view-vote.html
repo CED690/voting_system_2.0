@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="../../../public/css/admin.css?v=1.0.2">
+	<title>University Voting</title>
+	<style>
+		@keyframes scaleIn {
+			0% { transform: scale(0.95); opacity: 0; }
+			100% { transform: scale(1); opacity: 1; }
+		}
+		.candidates ul li {
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+		}
+		.candidates ul li:hover {
+			transform: translateX(6px);
+		}
+		.view-vote-sec .overview {
+			transition: box-shadow 0.3s ease !important;
+		}
+		.view-vote-sec .overview:hover {
+			box-shadow: var(--shadow-l) !important;
+		}
+	</style>
+</head>
+	<body>
+		<div class = "sidebar">
+			<div class = "container">
+				<div class = "sidebar-content">
+					<div class="title">
+						<h1>University </h1><h1 class="elec">Election</h1>
+					</div>
+					<div class = "body">
+						<ul>
+							<li>
+								<a href="../admin/dashboard.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-dashboard.png" alt = "icon">
+									<span>Dashboard</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/view-vote.html" class = "active">
+									<img src = "../../../public/img/icons/i-view-vote.png" alt = "icon">	
+									<span>View Vote</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/user-management.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-user-management.png" alt = "icon">
+									<span>User Management</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/tools.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-tools.png" alt = "icon">
+									<span>Tools</span>
+								</a>
+							</li>
+						</ul>
+						<button id = "logout-btn">Logout</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<section class = "view-vote-sec">
+			<div class = "container">
+				<div class ="vv-container">
+					<div class = "title">
+						<h1>View Vote</h1>
+					</div>
+					<div class = "analytics">
+						<div class = "ana-card" id = "total-stud">
+							<h3>Total Registered Students</h3>
+							<h1>0</h1>
+						</div>
+						<div class = "ana-card" id = "total-cad">
+							<h3>Total Candidate</h3>
+							<h1>0</h1>
+						</div>
+						<div class = "ana-card" id = "vote-turnout">
+							<h3>Voter Turnout</h3>
+							<h1>0%</h1>
+						</div>
+						<div class = "ana-card" id = "vote-cast">
+							<h3>Vote Cast</h3>
+							<h1>0</h1>
+						</div>
+					</div>
+					<div class = "overview">
+						<div class="title">
+							<h3>Candidate Overview by Department</h3>
+							<div class="custom-select">
+                                <select name="position" id="position-filter">
+                                    <option value="president">President</option>
+                                    <option value="vice-president">Vice President</option>
+                                    <option value="secretary">Secretary</option>
+                                    <option value="treasurer">Treasurer</option>
+                                    <option value="auditor">Auditor</option>
+                                </select>
+                                <span class="custom-arrow">
+                                </span>
+                            </div>
+						</div>	
+						<div class = "body">
+							<div class = "candidates">
+								<ul>
+									<li id = "active">Candidate no. 1</li>
+									<li id = "inactive">Candidate no. 2</li>
+								</ul>
+							</div>
+							<div class = "pie"></div>
+							<div class = "department">
+								<ul>
+									<li id = "coe">
+										<div class="color-tag" id="coe"></div>
+										<p>College of Engineering</p>
+									</li>
+									<li id = "ccst">
+										<div class="color-tag" id="ccst"></div>
+										<p>College of Computer Science and Technology</p>
+									</li>
+									<li id = "cas">
+										<div class="color-tag" id="cas"></div>
+										<p>College of Arts and Science</p>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<script src="../../../public/js/admin-common.js?v=1.0.2"></script>
+		<script>
+			let cachedCandidates = [];
+			let activeCandidateIndex = 0;
+
+			// Map select values to DB enum values
+			const positionMap = {
+				'president': 'President',
+				'vice-president': 'Vice President',
+				'secretary': 'Secretary',
+				'treasurer': 'Treasurer',
+				'auditor': 'Auditor'
+			};
+
+			async function loadData() {
+				try {
+					const res = await fetch('../../../public/api/admin/analytics.php');
+					const json = await res.json();
+					if (json.success) {
+						const data = json.data;
+						
+						// Update cards
+						document.querySelector('#total-stud h1').textContent = data.total_students;
+						document.querySelector('#total-cad h1').textContent = data.total_candidates;
+						document.querySelector('#vote-turnout h1').textContent = data.voter_turnout + '%';
+						document.querySelector('#vote-cast h1').textContent = data.votes_cast;
+
+						cachedCandidates = data.candidates || [];
+						renderFilteredCandidates();
+					}
+				} catch (err) {
+					console.error("Error loading vote view data:", err);
+				}
+			}
+
+			function renderFilteredCandidates() {
+				const filterVal = document.getElementById('position-filter').value;
+				const dbPosition = positionMap[filterVal] || 'President';
+
+				// Filter candidates by selected position
+				const filtered = cachedCandidates.filter(c => c.position === dbPosition);
+				
+				const listContainer = document.querySelector('.candidates ul');
+				listContainer.innerHTML = ''; // Clear default mock entries
+
+				const pieContainer = document.querySelector('.pie');
+				pieContainer.innerHTML = ''; // Clear visual container
+
+				// Safeguard active index bounds
+				if (activeCandidateIndex >= filtered.length) {
+					activeCandidateIndex = 0;
+				}
+
+				if (filtered.length > 0) {
+					// Render candidate list with clickable items
+					filtered.forEach((c, index) => {
+						const li = document.createElement('li');
+						li.id = index === activeCandidateIndex ? 'active' : 'inactive';
+						li.style.cursor = 'pointer';
+						li.innerHTML = `${c.firstname} ${c.lastname} <span style="float: right; font-weight: bold; color: ${index === activeCandidateIndex ? '#ffffff' : '#1968E5'};">${c.vote_count} votes</span>`;
+						li.addEventListener('click', () => {
+							activeCandidateIndex = index;
+							renderFilteredCandidates();
+						});
+						listContainer.appendChild(li);
+					});
+
+					// Calculate department distribution for the active candidate
+					const activeCandidate = filtered[activeCandidateIndex];
+					const depts = activeCandidate.departments || [];
+					let coeCount = 0;
+					let ccstCount = 0;
+					let casCount = 0;
+
+					depts.forEach(d => {
+						const name = d.department.toLowerCase();
+						const count = parseInt(d.vote_count) || 0;
+						if (name.includes('computer') || name.includes('technology') || name.includes('ccst') || name.includes('information')) {
+							ccstCount += count;
+						} else if (name.includes('engineering') || name.includes('coe')) {
+							coeCount += count;
+						} else {
+							casCount += count;
+						}
+					});
+
+					const totalVotes = coeCount + ccstCount + casCount;
+					
+					let coePct = 0;
+					let ccstPct = 0;
+					let casPct = 0;
+
+					if (totalVotes > 0) {
+						coePct = Math.round((coeCount / totalVotes) * 100);
+						ccstPct = Math.round((ccstCount / totalVotes) * 100);
+						casPct = 100 - coePct - ccstPct;
+					}
+
+					// Update UI legends with live stats
+					document.querySelector('.department #coe p').innerHTML = `College of Engineering <strong style="margin-left: 8px; color: #CC6668;">${coeCount} (${coePct}%)</strong>`;
+					document.querySelector('.department #ccst p').innerHTML = `College of Computer Science and Technology <strong style="margin-left: 8px; color: #66CC8D;">${ccstCount} (${ccstPct}%)</strong>`;
+					document.querySelector('.department #cas p').innerHTML = `College of Arts and Science <strong style="margin-left: 8px; color: #668CCC;">${casCount} (${casPct}%)</strong>`;
+
+					if (totalVotes === 0) {
+						pieContainer.style.background = '#eef2f5';
+						pieContainer.innerHTML = `
+							<div style="position: absolute; text-align: center; z-index: 10;">
+								<h2 style="font-size: 2.8rem; margin: 0; color: #06152D; font-weight: 700; font-family: var(--ff);">0</h2>
+								<p style="font-size: 0.85rem; margin: 0; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--ff);">Total Votes</p>
+							</div>
+						`;
+					} else {
+						// Render conic gradient: COE (#CC6668), CCST (#66CC8D), CAS (#668CCC)
+						pieContainer.style.background = `conic-gradient(
+							#CC6668 0% ${coePct}%, 
+							#66CC8D ${coePct}% ${coePct + ccstPct}%, 
+							#668CCC ${coePct + ccstPct}% 100%
+						)`;
+
+						pieContainer.innerHTML = `
+							<div style="position: absolute; text-align: center; z-index: 10; animation: scaleIn 0.3s ease-out;">
+								<h2 style="font-size: 3rem; margin: 0; color: #06152D; font-weight: 800; font-family: var(--ff);">${totalVotes}</h2>
+								<p style="font-size: 0.85rem; margin: 0; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--ff);">Total Votes</p>
+							</div>
+						`;
+					}
+
+				} else {
+					listContainer.innerHTML = '<li>No candidates for this position.</li>';
+					pieContainer.innerHTML = `
+						<div style="position: absolute; text-align: center; z-index: 10;">
+							<h2 style="font-size: 2rem; margin: 0; color: #888; font-weight: 700; font-family: var(--ff);">0</h2>
+							<p style="font-size: 0.85rem; margin: 0; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--ff);">No Data</p>
+						</div>
+					`;
+					pieContainer.style.background = '#eef2f5';
+					
+					document.querySelector('.department #coe p').innerHTML = `College of Engineering <strong style="margin-left: 8px; color: #CC6668;">0 (0%)</strong>`;
+					document.querySelector('.department #ccst p').innerHTML = `College of Computer Science and Technology <strong style="margin-left: 8px; color: #66CC8D;">0 (0%)</strong>`;
+					document.querySelector('.department #cas p').innerHTML = `College of Arts and Science <strong style="margin-left: 8px; color: #668CCC;">0 (0%)</strong>`;
+				}
+			}
+
+			// Add change event listener
+			document.getElementById('position-filter').addEventListener('change', () => {
+				activeCandidateIndex = 0;
+				renderFilteredCandidates();
+			});
+
+			// Init
+			loadData();
+		</script>
+	</body>
+</html>

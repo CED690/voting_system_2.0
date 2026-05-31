@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="../../../public/css/admin.css">
+	<title>University Voting</title>
+</head>
+	<body>
+		<div class = "sidebar">
+			<div class = "container">
+				<div class = "sidebar-content">
+					<div class="title">
+						<h1>University </h1><h1 class="elec">Election</h1>
+					</div>
+					<div class = "body">
+						<ul>
+							<li>
+								<a href="../admin/dashboard.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-dashboard.png" alt = "icon">
+									<span>Dashboard</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/view-vote.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-view-vote.png" alt = "icon">	
+									<span>View Vote</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/user-management.html" class = "active">
+									<img src = "../../../public/img/icons/i-user-management.png" alt = "icon">
+									<span>User Management</span>
+								</a>
+							</li>
+							<li>
+								<a href="../admin/tools.html" class = "inactive">
+									<img src = "../../../public/img/icons/i-tools.png" alt = "icon">
+									<span>Tools</span>
+								</a>
+							</li>
+						</ul>
+						<button id = "logout-btn">Logout</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<section class = "user-management-sec">
+			<div class = "container">
+				<div class ="um-container">
+					<div class = "title">
+						<h1>User Management</h1>
+					</div>
+					<div class = "analytics">
+						<div class = "ana-card" id = "total-stud">
+							<h3>Total Registered Students</h3>
+							<h1>0</h1>
+						</div>
+						<div class = "ana-card" id = "total-cad">
+							<h3>Total Candidate</h3>
+							<h1>0</h1>
+						</div>
+						<div class = "ana-card" id = "vote-turnout">
+							<h3>Voter Turnout</h3>
+							<h1>0%</h1>
+						</div>
+						<div class = "ana-card" id = "vote-cast">
+							<h3>Vote Cast</h3>
+							<h1>0</h1>
+						</div>
+					</div>
+					<div class = "body">
+						<div class="nav">
+                            <div class = "actions">
+                                <button id="archive-btn"><img src="../../../public/img/icons/i-archive.png" alt="act"></button>
+								<button id="disabled-btn"><img src="../../../public/img/icons/i-disabled.png" alt="act"></button>
+                            </div>
+                            <div class="custom-select">
+                                <select name="role" id="role-filter">
+                                    <option value="all">All Roles</option>
+                                    <option value="student">Student</option>
+                                    <option value="candidate">Candidate</option>
+                                </select>
+                                <span class="custom-arrow">
+                                </span>
+                            </div>
+                            <form action="" method="GET" id="search-form">
+                                <input type="text" id="search-user" name="s-user" placeholder="Search User...">
+                                <button type="submit"><img src="../../../public/img/icons/i-magnifying.png" alt="btn"></button>
+                            </form>
+                        </div>
+                        <div class="user-table">
+                            <div class="user-option">
+                                <button class="active" id = "users-opt-btn">Users</button>
+								<button class="inactive" id = "archive-opt-btn">Archive</button>
+                            </div>
+                            <div class="main-table">
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th class="cb"><input type="checkbox" id="select-all-cb"></th>
+                                        <th>Student ID</th>
+                                        <th>Name</th>
+                                        <th>Department</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Registered</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="user-table-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<script src="../../../public/js/admin-common.js"></script>
+		<script src="../../../public/js/admin-user-management.js"></script>
+	</body>
+</html>
