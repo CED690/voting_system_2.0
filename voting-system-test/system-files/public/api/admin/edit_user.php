@@ -227,6 +227,68 @@ try {
 
         echo json_encode(['success' => true, 'message' => 'Achievement removed successfully.']);
         exit;
+
+    } elseif ($action === 'update_document_status') {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $userId = $data['id'] ?? null;
+        $docKey = $data['doc_key'] ?? null;
+        $status = $data['status'] ?? null;
+
+        if (!$userId || !$docKey || !$status) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Missing required fields.']);
+            exit;
+        }
+
+        $stmt = $db->prepare("SELECT id, documents, status FROM candidateinfo WHERE userID = ?");
+        $stmt->execute([$userId]);
+        $cand = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$cand) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Candidate profile not found.']);
+            exit;
+        }
+
+        $candId = (int)$cand['id'];
+
+        if ($docKey === 'overall') {
+            $validStatuses = ['approved', 'rejected', 'pending'];
+            $normalizedStatus = strtolower($status);
+            if ($normalizedStatus === 'declined') {
+                $normalizedStatus = 'rejected';
+            }
+            if (!in_array($normalizedStatus, $validStatuses)) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Invalid overall status.']);
+                exit;
+            }
+
+            $stmt = $db->prepare("UPDATE candidateinfo SET status = ? WHERE id = ?");
+            $stmt->execute([$normalizedStatus, $candId]);
+
+            echo json_encode(['success' => true, 'message' => 'Candidate overall status updated to ' . $normalizedStatus]);
+            exit;
+        } else {
+            $docs = json_decode($cand['documents'] ?? '', true);
+            if (!is_array($docs)) {
+                $docs = [];
+            }
+
+            if (!isset($docs[$docKey])) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Document not found for this candidate.']);
+                exit;
+            }
+
+            $docs[$docKey]['status'] = $status;
+
+            $stmt = $db->prepare("UPDATE candidateinfo SET documents = ? WHERE id = ?");
+            $stmt->execute([json_encode($docs), $candId]);
+
+            echo json_encode(['success' => true, 'message' => 'Document status updated.', 'documents' => $docs]);
+            exit;
+        }
     }
 
 } catch (Exception $e) {

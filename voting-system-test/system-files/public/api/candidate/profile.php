@@ -122,6 +122,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             echo json_encode(['success' => true, 'message' => 'Profile photo removed.', 'profilePicture' => null]);
             exit;
+
+        } elseif ($action === 'submit_requirements') {
+            $stmt = $db->prepare("SELECT id, documents FROM candidateinfo WHERE userID = ?");
+            $stmt->execute([$userId]);
+            $cand = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$cand) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Candidate profile not found.']);
+                exit;
+            }
+            $candId = (int)$cand['id'];
+            $docs = json_decode($cand['documents'] ?? '', true);
+            if (!is_array($docs)) {
+                $docs = [];
+            }
+
+            $uploadDir = dirname(__DIR__, 2) . '/public/uploads/requirements';
+            if (!is_dir($uploadDir) && !mkdir($uploadDir, 0755, true)) {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Could not create upload folder.']);
+                exit;
+            }
+
+            $allowedKeys = ['good-moral', 'photo', 'student-id', 'consent', 'optional'];
+            $uploadedCount = 0;
+
+            foreach ($allowedKeys as $key) {
+                if (isset($_FILES[$key]) && $_FILES[$key]['error'] === UPLOAD_ERR_OK) {
+                    $file = $_FILES[$key];
+                    if ($file['size'] > 5 * 1024 * 1024) {
+                        http_response_code(400);
+                        echo json_encode(['success' => false, 'message' => 'Each file must be 5 MB or smaller.']);
+                        exit;
+                    }
+
+                    $finfo = new finfo(FILEINFO_MIME_TYPE);
+                    $mime = $finfo->file($file['tmp_name']);
+                    $map = [
+                        'image/jpeg'      => 'jpg',
+                        'image/png'       => 'png',
+                        'image/webp'      => 'webp',
+                        'application/pdf' => 'pdf'
+                    ];
+
+                    if (!isset($map[$mime])) {
+                        http_response_code(400);
+                        echo json_encode(['success' => false, 'message' => 'Invalid file type for ' . $key . '. Allowed: JPG, PNG, WebP, PDF.']);
+                        exit;
+                    }
+
+                    $ext = $map[$mime];
+                    $filename = 'candidate_' . $candId . '_' . $key . '.' . $ext;
+                    $fullPath = $uploadDir . '/' . $filename;
+                    $relativePath = 'uploads/requirements/' . $filename;
+
+                    // Remove old file with this key but different extension if it exists
+                    foreach (['jpg', 'jpeg', 'png', 'webp', 'pdf'] as $oldExt) {
+                        $oldFile = $uploadDir . '/candidate_' . $candId . '_' . $key . '.' . $oldExt;
+                        if (is_file($oldFile)) {
+                            @unlink($oldFile);
+                        }
+                    }
+
+                    if (move_uploaded_file($file['tmp_name'], $fullPath)) {
+                        $docs[$key] = [
+                            'filename'   => $file['name'],
+                            'filepath'   => $relativePath,
+                            'status'     => 'pending',
+                            'uploadedAt' => date('Y-m-d H:i:s')
+                        ];
+                        $uploadedCount++;
+                    }
+                }
+            }
+
+            $stmt = $db->prepare("UPDATE candidateinfo SET documents = ? WHERE id = ?");
+            $stmt->execute([json_encode($docs), $candId]);
+
+            echo json_encode(['success' => true, 'message' => 'Requirements submitted successfully!', 'documents' => $docs]);
+            exit;
         }
         
     } catch (Exception $e) {
@@ -137,7 +217,7 @@ try {
     $stmt = $db->prepare("
         SELECT u.id, u.loginID, u.firstname, u.lastname, u.mi, u.suffix, u.email,
                sl.program, sl.department,
-               ci.id AS candidate_id, ci.position, ci.partylist, ci.status, ci.platform, ci.profilePicture,
+               ci.id AS candidate_id, ci.position, ci.partylist, ci.status, ci.platform, ci.profilePicture, ci.documents,
                (SELECT COUNT(*) FROM votes v WHERE v.candidateID = ci.id) AS vote_count
         FROM users u
         LEFT JOIN studentlist sl ON u.loginID = sl.schoolID

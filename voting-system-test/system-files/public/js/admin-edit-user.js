@@ -15,6 +15,7 @@
 
     let currentUser = null;
     let achievements = [];
+    let currentCandidateInfo = null;
 
     const positionMap = {
         'President': 'president',
@@ -61,6 +62,7 @@
         const cand = data.candidateinfo;
         achievements = data.achievements || [];
         currentUser = user;
+        currentCandidateInfo = cand;
 
         showSection(!!cand);
 
@@ -314,10 +316,159 @@
         });
     }
 
+    const documentNames = {
+        'good-moral': 'Good Moral Character Certificate',
+        'photo': 'Recent 2x2 Photo',
+        'student-id': 'Valid Student ID',
+        'consent': 'Parent/Guardian Consent',
+        'optional': 'Additional Documents'
+    };
+
+    const supervisionModal = document.getElementById('supervision-modal');
+
+    function openSupervisionModal() {
+        if (!supervisionModal) return;
+        renderSupervisionDocs();
+        if (currentCandidateInfo) {
+            const overallSelect = document.getElementById('overall-candidacy-status');
+            if (overallSelect) {
+                overallSelect.value = (currentCandidateInfo.status || 'pending').toLowerCase();
+            }
+        }
+        supervisionModal.style.display = 'flex';
+    }
+
+    function closeSupervisionModal() {
+        if (supervisionModal) {
+            supervisionModal.style.display = 'none';
+        }
+    }
+
+    function renderSupervisionDocs() {
+        const list = document.getElementById('supervision-docs-list');
+        if (!list || !currentCandidateInfo) return;
+
+        list.innerHTML = '';
+        let docs = {};
+        if (currentCandidateInfo.documents) {
+            try {
+                docs = typeof currentCandidateInfo.documents === 'string' ? JSON.parse(currentCandidateInfo.documents) : currentCandidateInfo.documents;
+            } catch(e) {
+                console.error("Error parsing candidate documents:", e);
+            }
+        }
+
+        const keys = ['good-moral', 'photo', 'student-id', 'consent', 'optional'];
+        let hasAnyDocs = false;
+
+        keys.forEach(key => {
+            if (docs && docs[key]) {
+                hasAnyDocs = true;
+                const doc = docs[key];
+                const card = document.createElement('div');
+                card.className = 'supervision-card';
+                card.innerHTML = `
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <span style="font-weight: 700; color: #1e293b; font-size: 1rem;">${documentNames[key] || key}</span>
+                        <span style="color: #64748b; font-size: 0.875rem; word-break: break-all;">File: ${doc.filename}</span>
+                        <div style="margin-top: 0.5rem;">
+                            <span class="badge badge-${doc.status || 'pending'}">${doc.status || 'pending'}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <a href="../../../public/${doc.filepath}" target="_blank" class="supervision-btn supervision-btn-view">View</a>
+                        <button class="supervision-btn supervision-btn-approve" data-key="${key}">Approve</button>
+                        <button class="supervision-btn supervision-btn-decline" data-key="${key}">Decline</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            }
+        });
+
+        if (!hasAnyDocs) {
+            list.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">No documents uploaded by this candidate.</div>';
+        }
+
+        list.querySelectorAll('.supervision-btn-approve').forEach(btn => {
+            btn.addEventListener('click', () => updateDocumentStatus(btn.dataset.key, 'approved'));
+        });
+        list.querySelectorAll('.supervision-btn-decline').forEach(btn => {
+            btn.addEventListener('click', () => updateDocumentStatus(btn.dataset.key, 'declined'));
+        });
+    }
+
+    async function updateDocumentStatus(docKey, status) {
+        try {
+            const res = await fetch(`${API_BASE}/edit_user.php?action=update_document_status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: parseInt(userId, 10), doc_key: docKey, status })
+            });
+            const json = await res.json();
+            if (json.success) {
+                if (currentCandidateInfo) {
+                    let docs = {};
+                    if (currentCandidateInfo.documents) {
+                        docs = typeof currentCandidateInfo.documents === 'string' ? JSON.parse(currentCandidateInfo.documents) : currentCandidateInfo.documents;
+                    }
+                    if (docs[docKey]) {
+                        docs[docKey].status = status;
+                    }
+                    currentCandidateInfo.documents = docs;
+                }
+                renderSupervisionDocs();
+            } else {
+                alert(json.message || 'Failed to update document status.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('An error occurred.');
+        }
+    }
+
+    async function saveOverallStatus() {
+        const overallSelect = document.getElementById('overall-candidacy-status');
+        const status = overallSelect ? overallSelect.value : 'pending';
+
+        try {
+            const res = await fetch(`${API_BASE}/edit_user.php?action=update_document_status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: parseInt(userId, 10), doc_key: 'overall', status })
+            });
+            const json = await res.json();
+            if (json.success) {
+                alert('Candidacy status saved!');
+                if (currentCandidateInfo) {
+                    currentCandidateInfo.status = status;
+                }
+                const mainStatusDropdown = candidateSection.querySelector('#cand-status');
+                if (mainStatusDropdown) {
+                    mainStatusDropdown.value = status.toLowerCase();
+                }
+                closeSupervisionModal();
+            } else {
+                alert(json.message || 'Failed to save candidacy status.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('An error occurred.');
+        }
+    }
+
     function setupViewDocuments() {
         candidateSection?.querySelector('#cand-view-btn')?.addEventListener('click', e => {
             e.preventDefault();
-            alert('Required documents:\n\n• Good Moral Character Certificate\n• Recent 2x2 Photo\n• Valid Student ID\n• Parent/Guardian Consent (if under 18)\n\nDocuments are submitted via the Candidacy Requirements page.');
+            openSupervisionModal();
+        });
+
+        document.getElementById('close-supervision-modal')?.addEventListener('click', closeSupervisionModal);
+        document.getElementById('save-overall-status-btn')?.addEventListener('click', saveOverallStatus);
+        
+        supervisionModal?.addEventListener('click', e => {
+            if (e.target === supervisionModal) {
+                closeSupervisionModal();
+            }
         });
     }
 

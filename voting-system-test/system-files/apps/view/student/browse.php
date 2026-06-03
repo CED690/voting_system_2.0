@@ -108,7 +108,7 @@ $isCandidate = !empty($_SESSION['is_candidate']);
             </div>
         </div>
     </section>
-    <?php if ($isCandidate): $switchPage = 'browse'; include __DIR__ . '/partials/student-switch-btn.php'; endif; ?>
+    <?php $switchPage = 'browse'; include __DIR__ . '/partials/student-switch-btn.php'; ?>
     <script src="../../../public/js/student-common.js?v=<?= time() ?>"></script>
     <script src="../../../public/js/student-browse.js?v=<?= time() ?>"></script>
 </body>
